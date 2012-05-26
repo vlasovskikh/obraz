@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='obraz',
-    version='0.1.1',
+    version='0.1.2',
     packages=['test'],
     py_modules=['obraz'],
     install_requires=['PyYAML', 'Jinja2', 'Markdown'],
