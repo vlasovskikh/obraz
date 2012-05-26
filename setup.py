@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(
     name='obraz',
-    version='0.1',
+    version='0.1.1',
     packages=['test'],
     py_modules=['obraz'],
-    requires=['PyYAML', 'Jinja2', 'Markdown'],
+    install_requires=['PyYAML', 'Jinja2', 'Markdown'],
     entry_points={
         'console_scripts': [
             'obraz = obraz:main',
