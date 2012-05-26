@@ -73,9 +73,17 @@ a {
 
 /* Custom styles */
 
+.hentry {
+    margin: 1em 0;
+}
+
 .hentry .published {
     float: right;
     color: #666666;
+}
+
+.hentry h3 {
+    margin: 0.5em 0;
 }
 
 .dynamic-link {
@@ -92,6 +100,10 @@ a {
 
 .clear {
     clear: both;
+}
+
+#buttons {
+    margin: 2em 0;
 }
 
 /* Layout styles */
