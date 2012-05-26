@@ -1,0 +1,28 @@
+---
+---
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Obraz - {{ page.title }}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/media/default.css"/>
+    <link rel="alternate" type="application/atom+xml" href="/feed.atom" title="Obraz"/>
+  </head>
+  <body>
+    <heading>
+      {% if page.heading %}
+        {{ page.heading }}
+      {% else %}
+        <p><a href="/">Obraz</a> — static site generator in a single Python file similar to Jekyll</p>
+        <div class="break"></div>
+      {% endif %}
+    </heading>
+    {{ content }}
+    <div class="break"></div>
+    <footer>
+      <address>Copyright © 2012 Andrey Vlasovskikh</address>
+      <div>Except as noted, the content is licensed under the terms of a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons License</a>.</div>
+    </footer>
+  </body>
+</html>
+

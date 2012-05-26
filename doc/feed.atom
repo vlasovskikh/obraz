@@ -1,0 +1,25 @@
+---
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ <title>Obraz</title>
+ <id>{{ site.url }}/</id>
+ <updated>{{ site.time.isoformat() + 'Z' }}</updated>
+ <author>
+   <name>Andrey Vlasovskikh</name>
+ </author>
+ <link rel="self" href="{{ site.url }}/feed.atom"/>
+ <link rel="alternate" href="{{ site.url }}/"/>
+ {% for post in site.posts | batch(5) | first %}
+   <entry>
+     <title>{{ post.title }}</title>
+     <id>{{ site.url }}{{ post.id }}</id>
+     <link rel="alternate" href="{{ site.url }}{{ post.url }}"/>
+     <updated>{{ post.date.isoformat() + 'Z' }}</updated>
+     <content type="xhtml">
+       <div xmlns="http://www.w3.org/1999/xhtml">{{ post.content }}</div>
+     </content>
+   </entry>
+ {% endfor %}
+</feed>
+
