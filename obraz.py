@@ -99,7 +99,7 @@ def is_file_visible(filename, exclude=None):
 def path2url(path):
     m = re.match('(.*)/index.html?$', path)
     if m:
-        path = m.group(1)
+        path = '{0}/'.format(m.group(1))
     return urllib.pathname2url('/{0}'.format(path))
 
 
