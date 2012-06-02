@@ -28,6 +28,7 @@ import os
 import re
 import shutil
 import errno
+from glob import glob
 from datetime import datetime
 from contextlib import contextmanager
 
@@ -329,6 +330,23 @@ def generate_files(basedir, destdir, site):
         shutil.copy(src, dst)
 
 
+def load_plugins(basedir):
+    plugins = sorted(glob(os.path.join(basedir, '_plugins', '*.py')))
+    n = 0
+    for plugin in plugins:
+        with report_exceptions('loading {0}'.format(plugin)):
+            vars = {'obraz': sys.modules[__name__]}
+            if sys.version_info[0] < 3:
+                execfile(plugin, vars)
+            else:
+                with open(plugin, 'rb') as fd:
+                    code = fd.read()
+                    exec(code, vars)
+            n += 1
+    if n > 0:
+        log('Loaded {0} plugins'.format(n))
+
+
 def load_site(basedir):
     log('Loading source files...')
     site = load_yaml_mapping(os.path.join(basedir, '_config.yml'))
@@ -362,6 +380,7 @@ def generate_site(basedir, site):
 
 
 def obraz(basedir):
+    load_plugins(basedir)
     site = load_site(basedir)
     generate_site(basedir, site)
 
