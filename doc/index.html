@@ -62,7 +62,7 @@ heading:
           <div class="published">{{ post.date.strftime('%Y-%m-%d') }}</div>
           <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
           {% if loop.index == 1 %}
-            {% set SIZE = 1000 %}
+            {% set SIZE = 500 %}
             {{ post.content | truncate(SIZE) }}
             {% if post.content | length > SIZE %}
               <p><a href="{{ post.url }}">Read more...</a></p>
