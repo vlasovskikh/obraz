@@ -39,17 +39,16 @@ Different
     Variables `i_month` and `i_day`, as well as built-in permalink styles, are
     not available.
 
+* Plugin system
+
+    Obraz 0.2 introduces an experimental plugin system. It may be changed
+    significantly in the future releases. Please refer to the [announcement][5]
+    and the [source code][6] for more info.
+
 
 Not Implemented Yet
 -------------------
 
-* Plugin system
-
-    The plugin system is not implemented yet. It will be implemented, but it
-    will be definitly _not_ compatible with Jekyll. Jekyll plugins are written
-    in Ruby, but Obraz is written in Python. The plugin API is not yet
-    developed, although it's not hard to re-use the internal modularity of Obraz
-    for a plugin system.
 
 * Categories of posts
 
@@ -79,8 +78,8 @@ Not in Obraz
 
 * Jekyll-compatible plugin system
 
-    There are plans to implement a plugin system, but it will be _not_
-    complatible with Jekyll (Python vs Ruby).
+    The plugin system of Obraz will never be compatible with Jekyll (Python vs
+    Ruby).
 
 * Built-in web server
 
@@ -111,4 +110,6 @@ your reports to the [bug tracker][4].
   [2]: http://jinja.pocoo.org/docs/templates/
   [3]: http://softwaremaniacs.org/soft/highlight/en/
   [4]: https://bitbucket.org/vlasovskikh/obraz/issues
+  [5]: http://obraz.pirx.ru/2012/06/02/obraz-0.2.html
+  [6]: https://bitbucket.org/vlasovskikh/obraz/src/master/obraz.py
 
