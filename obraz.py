@@ -27,10 +27,14 @@ import sys
 import os
 import re
 import shutil
-import urllib
 import errno
 from datetime import datetime
 from contextlib import contextmanager
+
+try:
+    from urllib.request import pathname2url, url2pathname
+except ImportError:
+    from urllib import pathname2url, url2pathname
 
 import yaml
 from markdown import markdown
@@ -60,7 +64,7 @@ def load_yaml_mapping(filename):
         with open(filename, 'rb') as fd:
             mapping = yaml.load(fd)
             return mapping if mapping else {}
-    except IOError, e:
+    except IOError as e:
         if e.errno == errno.ENOENT:
             return {}
 
@@ -100,19 +104,19 @@ def path2url(path):
     m = re.match('(.*)/index.html?$', path)
     if m:
         path = '{0}/'.format(m.group(1))
-    return urllib.pathname2url('/{0}'.format(path))
+    return pathname2url('/{0}'.format(path))
 
 
 def url2path(url):
     if url.endswith('/'):
         url += 'index.html'
-    return urllib.url2pathname(url).lstrip('/')
+    return url2pathname(url).lstrip('/')
 
 
 def makedirs(path):
     try:
         os.makedirs(path)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.EEXIST:
             pass
 
@@ -120,13 +124,14 @@ def makedirs(path):
 def rmtree(path):
     try:
         shutil.rmtree(path)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.EEXIST:
             pass
 
 
 def log(message):
-    print >> sys.stderr, message
+    sys.stderr.write('{0}\n'.format(message))
+    sys.stderr.flush()
 
 
 def file_suffix(filename):
@@ -148,7 +153,7 @@ def object_name(f):
 def report_exceptions(message):
     try:
         yield
-    except Exception, e:
+    except Exception as e:
         global retcode
         retcode = 1
         log('Error when {0}: {1}'.format(message, e))
@@ -169,26 +174,26 @@ def render_string(basedir, s, context, filename, offset=0):
     try:
         t = env.from_string(s)
         return t.render(**context)
-    except TemplateSyntaxError, e:
+    except TemplateSyntaxError as e:
         raise Exception('{0}:{1}: {2}'.format(filename, e.lineno + offset,
                                               e.message))
 
 
 def read_template(filename):
     with open(filename, 'rb') as fd:
-        if fd.read(3) != '---':
+        if fd.read(3) != b'---':
             return None
         lines = []
         offset = 1
         while True:
             line = fd.readline()
-            if line == '---\n':
+            if re.match(b'^---$', line):
                 break
-            elif line == '':
+            elif line == b'':
                 return None
             lines.append(line)
             offset += 1
-        front_matter = ''.join(lines)
+        front_matter = b''.join(lines)
         page = yaml.load(front_matter)
         if not page:
             page = {}
@@ -238,7 +243,7 @@ def load_post(basedir, filename, site):
     if not m:
         return None
     permalink = site.get('permalink', '/{year}/{month}/{day}/{title}.html')
-    url = urllib.pathname2url(permalink.format(**m.groupdict()))
+    url = pathname2url(permalink.format(**m.groupdict()))
     page = read_page(basedir, filename, url)
     if not page:
         return None
