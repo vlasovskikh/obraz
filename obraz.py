@@ -188,7 +188,7 @@ def read_template(filename):
         offset = 1
         while True:
             line = fd.readline()
-            if re.match(b'^---$', line):
+            if re.match(b'^---\r?\n', line):
                 break
             elif line == b'':
                 return None
