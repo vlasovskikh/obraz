@@ -122,9 +122,12 @@ def makedirs(path):
             pass
 
 
-def rmtree(path):
+def remove(path):
     try:
-        shutil.rmtree(path)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
     except OSError as e:
         if e.errno == errno.EEXIST:
             pass
@@ -369,7 +372,7 @@ def generate_site(basedir, site):
     destdir = os.path.join(basedir, '_site')
     makedirs(destdir)
     for name in os.listdir(destdir):
-        rmtree(os.path.join(destdir, name))
+        remove(os.path.join(destdir, name))
     for processor in processors:
         log('{0}...'.format(object_name(processor)))
         processor(basedir, destdir, site)
