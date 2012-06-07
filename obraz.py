@@ -102,16 +102,16 @@ def is_file_visible(filename, exclude=None):
 
 
 def path2url(path):
-    m = re.match('(.*)/index.html?$', path)
+    m = re.match(r'(.*)[/\\]index.html?$', path)
     if m:
-        path = '{0}/'.format(m.group(1))
-    return pathname2url('/{0}'.format(path))
+        path = m.group(1) + os.path.sep
+    return pathname2url(os.path.sep + path)
 
 
 def url2path(url):
     if url.endswith('/'):
         url += 'index.html'
-    return url2pathname(url).lstrip('/')
+    return url2pathname(url).lstrip(os.path.sep)
 
 
 def makedirs(path):
