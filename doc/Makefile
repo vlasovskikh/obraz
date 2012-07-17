@@ -4,7 +4,7 @@ default:
 	obraz
 
 serve:
-	cd _site && python2 -m SimpleHTTPServer
+	cd _site && python -m SimpleHTTPServer
 
 publish:
 	rsync -avz --delete _site/ $(PUBLIC_ADDRESS)
