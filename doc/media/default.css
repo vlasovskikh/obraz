@@ -75,8 +75,15 @@ a {
     margin: 1em 0;
 }
 
+.hentry .navigation {
+    float: right;
+    text-align: right;
+    margin-bottom: 0.2em;
+}
+
 .hentry .published {
     float: right;
+    clear: both;
     color: #666666;
 }
 
