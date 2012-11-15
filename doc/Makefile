@@ -1,7 +1,7 @@
 PUBLIC_ADDRESS = pirxru@pirx.ru:obraz/public_html
 
 default:
-	obraz
+	obraz .
 
 serve:
 	cd _site && python -m SimpleHTTPServer
