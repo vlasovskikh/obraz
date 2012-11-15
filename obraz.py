@@ -20,9 +20,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Static site generator in a single Python file similar to Jekyll."""
+"""Static site generator in a single Python file similar to Jekyll.
+
+Usage:
+
+    obraz.py [-h|--help] [/path/to/blog]
+
+If /path/to/blog is not specified, then obraz.py builds site in the
+current directory.  For further documentation see http://obraz.pirx.ru/."""
 
 
+from __future__ import print_function
 import sys
 import os
 import re
@@ -387,9 +395,15 @@ def obraz(basedir):
     site = load_site(basedir)
     generate_site(basedir, site)
 
+def usage():
+    print(__doc__.replace("obraz.py", os.path.basename(sys.argv[0])))
+    sys.exit(0)
 
 def main():
-    obraz(os.getcwd())
+    if '-h' in sys.argv[1:] or '--help' in sys.argv[1:]:
+        usage()
+    basedir = sys.argv[1] if sys.argv[1:] else os.getcwd()
+    obraz(basedir)
     sys.exit(retcode)
 
 
@@ -409,4 +423,3 @@ processors.extend([
 
 if __name__ == '__main__':
     main()
-
