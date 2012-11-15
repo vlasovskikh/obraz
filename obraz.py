@@ -24,13 +24,11 @@
 
 Usage:
 
-    obraz.py [-h|--help] [/path/to/blog]
+    obraz [-h|--help] /path/to/blog
 
-If /path/to/blog is not specified, then obraz.py builds site in the
-current directory.  For further documentation see http://obraz.pirx.ru/."""
+For documentation see http://obraz.pirx.ru/."""
 
 
-from __future__ import print_function
 import sys
 import os
 import re
@@ -396,14 +394,14 @@ def obraz(basedir):
     generate_site(basedir, site)
 
 def usage():
-    print(__doc__.replace("obraz.py", os.path.basename(sys.argv[0])))
+    log(__doc__)
     sys.exit(0)
 
 def main():
-    if '-h' in sys.argv[1:] or '--help' in sys.argv[1:]:
+    args = sys.argv[1:]
+    if '-h' in args or '--help' in args or not args:
         usage()
-    basedir = sys.argv[1] if sys.argv[1:] else os.getcwd()
-    obraz(basedir)
+    obraz(args[0])
     sys.exit(retcode)
 
 
