@@ -393,14 +393,12 @@ def obraz(basedir):
     site = load_site(basedir)
     generate_site(basedir, site)
 
-def usage():
-    log(__doc__)
-    sys.exit(0)
 
 def main():
     args = sys.argv[1:]
     if '-h' in args or '--help' in args or not args:
-        usage()
+        log(__doc__)  # usage
+        sys.exit(0)
     obraz(args[0])
     sys.exit(retcode)
 
