@@ -24,9 +24,9 @@
 
 Usage:
 
-    obraz [-h|--help] /path/to/blog
+    obraz [-h|--help] /path/to/site
 
-For documentation see http://obraz.pirx.ru/."""
+For documentation see <http://obraz.pirx.ru/>."""
 
 
 import sys

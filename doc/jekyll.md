@@ -26,9 +26,10 @@ Different
 
 * No command line options
 
-    Obraz has no command line options and arguments. The site source is always
-    the current directory, the site destination is always `_site`. You can
-    specify options only via configuration parameters in `_config.yml`.
+    Obraz has no command line options (apart from `--help`) and it accepts only
+    one required command line argument: the site source. The site destination
+    is always `_site`. You can specify options only via configuration
+    parameters in `_config.yml`.
 
 * Permalink syntax
 
