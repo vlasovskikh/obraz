@@ -397,8 +397,8 @@ def obraz(basedir):
 def main():
     args = sys.argv[1:]
     if '-h' in args or '--help' in args or not args:
-        log(__doc__)  # usage
-        sys.exit(0)
+        log(__doc__)
+        sys.exit(1)
     obraz(args[0])
     sys.exit(retcode)
 
