@@ -53,9 +53,12 @@ PAGE_ENCODING = 'UTF-8'
 
 loaders = []
 processors = []
-filters = {
+file_filters = {
     '.md':          markdown,
     '.markdown':    markdown,
+}
+template_filters = {
+    'markdownify':  markdown,
 }
 retcode = 0
 
@@ -181,6 +184,7 @@ def load_file(basedir, filename, site):
 def render_string(basedir, s, context, filename, offset=0):
     includes = os.path.join(basedir, '_includes')
     env = Environment(loader=FileSystemLoader(includes))
+    env.filters.update(template_filters)
     try:
         t = env.from_string(s)
         return t.render(**context)
@@ -218,7 +222,7 @@ def read_page(basedir, filename, url):
     if not page:
         return None
     page['url'] = url
-    filter = filters.get(file_suffix(filename))
+    filter = file_filters.get(file_suffix(filename))
     if filter:
         page['content'] = filter(page['content'])
     return page
@@ -229,7 +233,7 @@ def load_page(basedir, filename, site):
     if not is_file_visible(filename, exclude):
         return None
     name, suffix = os.path.splitext(filename)
-    if suffix in filters:
+    if suffix in file_filters:
         dst = '{0}.html'.format(name)
     else:
         dst = filename
