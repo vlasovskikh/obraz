@@ -24,6 +24,8 @@ Different
     Jinja2 is usually straightforward. See the [Jinja2 templates
     documentation][2] for details.
 
+    Jekyll filters in Obraz: `markdownify`.
+
 * No command line options
 
     Obraz has no command line options (apart from `--help`) and it accepts only
