@@ -66,8 +66,8 @@ retcode = 0
 
 def all_files(basedir):
     for path, dirs, files in os.walk(basedir):
-        for file in files:
-            yield os.path.join(path, file)
+        for filename in files:
+            yield os.path.join(path, filename)
 
 
 def load_yaml_mapping(filename):
@@ -224,9 +224,9 @@ def read_page(basedir, filename, url):
     if not page:
         return None
     page['url'] = url
-    filter = file_filters.get(file_suffix(filename))
-    if filter:
-        page['content'] = filter(page['content'])
+    f = file_filters.get(file_suffix(filename))
+    if f:
+        page['content'] = f(page['content'])
     return page
 
 
@@ -338,9 +338,9 @@ def generate_pages(basedir, destdir, site):
 
 def generate_files(basedir, destdir, site):
     """Copy static files."""
-    for file in site.get('files', []):
-        src = os.path.join(basedir, file['source'])
-        dst = os.path.join(destdir, url2path(file['url']))
+    for file_dict in site.get('files', []):
+        src = os.path.join(basedir, file_dict['source'])
+        dst = os.path.join(destdir, url2path(file_dict['url']))
         makedirs(os.path.dirname(dst))
         shutil.copy(src, dst)
 
