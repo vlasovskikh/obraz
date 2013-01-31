@@ -39,3 +39,6 @@ class ObrazTest(unittest.TestCase):
 
     def test_posts(self):
         self.do('posts')
+
+    def test_plugins(self):
+        self.do('plugins')
