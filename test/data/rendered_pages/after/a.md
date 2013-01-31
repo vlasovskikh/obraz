@@ -9,7 +9,7 @@ title: Test
 
 Hello, *{{ page.name }}*!
 
-My URL is [{{ page.url }}]({{ page.url}}).
+My URL is [{{ page.url }}]({{page.url}}).
 
 Global: {{ site.global_x }}.
 
