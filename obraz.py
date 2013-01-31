@@ -350,12 +350,9 @@ def load_plugins(basedir):
     n = 0
     for plugin in plugins:
         with report_exceptions('loading {0}'.format(plugin)):
-            if sys.version_info[0] < 3:
-                execfile(plugin, {})
-            else:
-                with open(plugin, 'rb') as fd:
-                    code = fd.read()
-                    exec(code, {})
+            with open(plugin, 'rb') as fd:
+                code = fd.read()
+                exec(code, {})
             n += 1
     if n > 0:
         log('Loaded {0} plugins'.format(n))
