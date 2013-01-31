@@ -37,6 +37,7 @@ import errno
 from glob import glob
 from datetime import datetime
 from contextlib import contextmanager
+import traceback
 
 try:
     from urllib.request import pathname2url, url2pathname
@@ -170,6 +171,7 @@ def report_exceptions(message):
         global retcode
         retcode = 1
         log('Error when {0}: {1}'.format(message, e))
+        log(traceback.format_exc())
 
 
 def load_file(basedir, filename, site):
