@@ -382,8 +382,10 @@ def generate_site(basedir, site):
     for name in os.listdir(destdir):
         remove(os.path.join(destdir, name))
     for processor in processors:
-        log('{0}...'.format(object_name(processor)))
-        processor(basedir, destdir, site)
+        msg = object_name(processor)
+        log('{0}...'.format(msg))
+        with report_exceptions(msg):
+            processor(basedir, destdir, site)
     if retcode == 0:
         log('Site generated successfully')
     else:
