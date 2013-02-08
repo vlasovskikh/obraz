@@ -422,4 +422,5 @@ processors.extend([
 
 
 if __name__ == '__main__':
+    sys.modules['obraz'] = sys.modules[__name__]
     main()
