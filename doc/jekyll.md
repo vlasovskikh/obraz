@@ -7,7 +7,7 @@ title: Compatibility with Jekyll
 ================
 
 Obraz is mostly compatible with Jekyll. Since most parts of the [Jekyll
-documentation][1] is valid for Obraz too, Obraz doesn't have its own
+documentation][1] are valid for Obraz too, Obraz doesn't have its own
 documentation.
 
 However, there are several differences you should be aware of.
