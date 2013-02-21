@@ -1,0 +1,11 @@
+syntax:glob
+doc/_site
+build
+dist
+venv
+tmp
+.idea
+*.pyc
+*.egg-info
+*.swp
+

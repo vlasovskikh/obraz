@@ -1,0 +1,212 @@
+---
+layout: default
+title: static site generator in a single Python file similar to Jekyll
+heading:
+  <section id="obraz-logo">
+    <h1>Obraz</h1>
+  </section>
+---
+
+<script type="text/javascript" src="/media/jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+      var contents = $('#quickstart .file-content');
+      $('#quickstart .dynamic-link').click(function (e) {
+          var content = $('#quickstart .file-content[filename="' + $(this).text() + '"]');
+          var hidden = !content.is(':visible');
+          contents.fadeOut();
+          if (hidden) {
+              content.fadeIn();
+          }
+          e.stopPropagation();
+      });
+  });
+</script>
+<section>
+  <section id="obraz-definition">
+    <p><strong>Obraz</strong> (<em>Russian: Образ</em>). IPA: /ˈobrəs/ <em>n.</em></p>
+    <ol>
+      <li>Image, the result of applying a function to an argument</li>
+      <li>A static site generator in a single Python file similar to Jekyll</li>
+    </ol>
+    <p>See <a href="http://en.wiktionary.org/wiki/образ#Russian">Wiktionary</a> for other meanings.</p>
+  </section>
+</section>
+{% include 'buttons.html' %}
+<section class="twocolumn-left">
+  <div class="break"></div>
+  <section id="why-obraz">
+    <h2>Why?</h2>
+    <p>There are many static site generators. Why choose Obraz?</p>
+    <dl>
+      <div class="reason">
+        <dt>Python</dt>
+        <dd>Written in the <a href="http://xkcd.com/353/">Python</a> language</dd>
+      </div>
+      <div class="reason">
+        <dt>&lt; 500</dt>
+        <dd>Single source file less than <a href="https://bitbucket.org/vlasovskikh/obraz/src/master/obraz.py">500</a> lines of code</dd>
+      </div>
+      <div class="reason">
+        <dt>Jekyll</dt>
+        <dd>Mostly <a href="/jekyll.html">compatible</a> with the popular Jekyll</dd>
+      </div>
+      <div class="clear"></div>
+    </dl>
+  </section>
+  <div class="break"></div>
+  <section id="news" class="hfeed">
+    <h2>News <a href="/feed.atom"><img src="/media/feed.png" alt="(feed)"/></a></h2>
+    {% for post in site.posts | batch(5) | first %}
+        <section class="hentry">
+          <div class="published">{{ post.date.strftime('%Y-%m-%d') }}</div>
+          <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
+          {% if loop.index == 1 %}
+            {{ post.content }}
+          {% endif %}
+        </section>
+    {% endfor %}
+    <p><a href="/archive.html">Archive...</a></p>
+  </section>
+  <div class="break"></div>
+  <section>
+    <h2>Users</h2>
+    <p>This is the list of several sites that are generated using Obraz:</p>
+    <ul>
+      <li><a href="http://obraz.pirx.ru/">Obraz</a> (<a href="https://bitbucket.org/vlasovskikh/obraz">sources</a>)</li>
+      <li><a href="http://pirx.ru/">Pirx.ru</a></li>
+      <li><a href="http://labs.dendiz.com/">Labs.dendiz.com</a> (<a href="https://github.com/dendiz/labs.dendiz.com">sources</a>)</li>
+      <li><a href="http://huisman.tk/">Huisman.tk</a></li>
+    </ul>
+  </section>
+  <div class="break"></div>
+  <section>
+    <h2>Development</h2>
+    <p>The <a href="https://bitbucket.org/vlasovskikh/obraz">source code</a> is available on the Bitbucket:</p>
+    <pre><code>$ hg clone https://bitbucket.org/vlasovskikh/obraz
+</code></pre>
+    <p>Bug reports, feature requests, and contributions are welcome!</p>
+  </section>
+</section>
+<section class="twocolumn-right">
+  <div class="break"></div>
+  <section id="quickstart">
+    <h2>Quickstart</h2>
+    <p>Let's create a statically generated blog!</p>
+    <ol>
+      <li>
+        <p>Install Obraz from the <a href="http://pypi.python.org/pypi/obraz/">Python package index:</a></p>
+        <pre><code>$ pip install obraz
+</code></pre>
+      </li>
+      <li>
+        <p>Create your own blog in the <code>/path/to/blog</code> directory:</p>
+        <pre><code>.
+|-- _layouts
+|   |-- <a class="dynamic-link">default.html</a>
+|   `-- <a class="dynamic-link">post.html</a>
+|-- _posts
+|   |-- <a class="dynamic-link">2012-05-24-hello-world.md</a>
+|   `-- <a class="dynamic-link">2012-05-25-second-blog-post.md</a>
+`-- <a class="dynamic-link">index.html</a>
+</code></pre>
+        {% set default_html = '---
+---
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Blog - {{ page.title }}</title>
+  </head>
+  <body>
+    {{ content }}
+  </body>
+</html>' %}
+        {% set post_html = '---
+layout: default
+---
+
+<div class="entry">
+  <h1>{{ page.title }}</h1>
+  <p>Created at {{ page.date }}.</p>
+  {{ content }}
+</div>' %}
+        {% set hello_world_md = '---
+layout: post
+title: Hello, World!
+---
+
+This is my _first_ blog post!
+
+It uses:
+
+* YAML for metadata
+* Markdown for formatting
+* Obraz for static generation' %}
+        {% set second_blog_post_md = '---
+layout: post
+title: Second Blog Post
+---
+
+Just another blog post.' %}
+        {% set index_html = '---
+layout: default
+---
+
+<div>
+  <h1>My Blog</h1>
+  <p>Welcome to my blog!</p>
+  <ul>
+  {% for post in site.posts %}
+    <li class="entry">
+      <span class="date">{{ post.date }}</span>
+      <a href="{{ post.url }}">{{ post.title }}</a>
+    </li>
+  {% endfor %}
+  </ul>
+</div>' %}
+        <div class="file-content" filename="default.html">
+          <p>The <code>_layouts</code> directory contains layout templates. <code>default.html</code> contains the default layout for all the site pages:</p>
+          <pre><code>{{ default_html | e }}
+</code></pre>
+        </div>
+        <div class="file-content" filename="post.html">
+          <p><code>post.html</code> contains the layout for blog posts. It uses the <code>default</code> layout in its YAML front matter:</p>
+          <pre><code>{{ post_html | e }}
+</code></pre>
+        </div>
+        <div class="file-content" filename="2012-05-24-hello-world.md">
+          <p><code>2012-05-24-hello-world.md</code> is the first blog post in Markdown. The publication date is specified in the filename using Jekyll conventions. It is based on the <code>post</code> layout:</p>
+          <pre><code>{{ hello_world_md | e }}
+</code></pre>
+        </div>
+        <div class="file-content" filename="2012-05-25-second-blog-post.md">
+          <p><code>2012-05-25-second-blog-post.md</code> is just another blog post:</p>
+          <pre><code>{{ second_blog_post_md | e }}
+</code></pre>
+        </div>
+        <div class="file-content" filename="index.html">
+          <p><code>index.html</code> is the start page of the blog. It contains the list of recent posts:</p>
+          <pre><code>{{ index_html | e }}
+</code></pre>
+        </div>
+      </li>
+      <li>
+        <p>Generate your site using Obraz:</p>
+        <pre><code>$ obraz /path/to/blog
+</code></pre>
+        <p>The generated files will appear in the <code>/path/to/blog/_site</code> directory.</p>
+      </li>
+      <li>
+        <p>Run the web server:</p>
+        <pre><code>$ cd /path/to/blog/_site
+$ python -m SimpleHTTPServer 8000
+</code></pre>
+        <p>and check the results in the browser by visiting <a href="http://localhost:8000/">http://localhost:8000/</a>. You got your first Obraz blog up and running! Now it's time to play with the design and customize things.</p>
+      </li>
+    </ol>
+    <p>For more details refer to the <a href="https://github.com/mojombo/jekyll/wiki">Jekyll documentation</a> and the list of <a href="/jekyll.html">differences from Jekyll</a>.</p>
+    <p>See also the source code of various sites using Obraz for examples of using RSS feeds, Markdown pages, tags, custom URLs, etc.</p>
+  </section>
+</section>
+
