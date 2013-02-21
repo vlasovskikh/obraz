@@ -61,6 +61,8 @@ file_filters = {
 template_filters = {
     'markdownify':  markdown,
 }
+keep_filenames = [".htaccess"]
+ignore_filenames = map(re.compile, ["^[\.#_].*", ".*~$", ".*\.s[uvw][a-z]$"])
 retcode = 0
 
 
@@ -103,7 +105,9 @@ def is_file_visible(filename, exclude=None):
     if not exclude:
         exclude = []
     parts = filename.split(os.path.sep)
-    if any(part.startswith('.') or part.startswith('_') for part in parts):
+    if filename in keep_filenames:
+        return True
+    elif any([r.match(part) for r in ignore_filenames for part in parts]):
         return False
     elif any(filename.startswith(path) for path in exclude):
         return False
