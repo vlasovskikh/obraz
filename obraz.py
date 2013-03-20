@@ -258,6 +258,9 @@ def load_post(basedir, filename, site):
     if '_posts' not in parts:
         return None
     _, name = os.path.split(filename)
+    exclude = site.get('exclude', [])
+    if not is_file_visible(name, exclude):
+        return None
     name, suffix = os.path.splitext(name)
     m = post_re.match(name)
     if not m:
