@@ -61,9 +61,17 @@ file_filters = {
 template_filters = {
     'markdownify':  markdown,
 }
-keep_filenames = [".htaccess"]
-ignore_filenames = map(re.compile, ["^[\.#_].*", ".*~$", ".*\.s[uvw][a-z]$"])
 retcode = 0
+
+
+default_site = {
+    'include': ['.htaccess'],
+    'exclude_patterns': [
+        r'^[\.#_].*',
+        r'.*~$',
+        r'.*\.s[uvw][a-z]$',  # *.swp files, etc.
+    ],
+}
 
 
 def all_files(basedir):
@@ -101,13 +109,15 @@ def merge(x1, x2):
         raise ValueError("cannot merge '{0!r}' and '{1!r}'".format(x1, x2))
 
 
-def is_file_visible(filename, exclude=None):
-    if not exclude:
-        exclude = []
+def is_file_visible(filename, site):
     parts = filename.split(os.path.sep)
-    if filename in keep_filenames:
+    exclude = site.get('exclude', [])
+    exclude_patterns = site.get('exclude_patterns', [])
+    if filename in site.get('include', []):
         return True
-    elif any([r.match(part) for r in ignore_filenames for part in parts]):
+    elif any(re.match(pattern, part)
+             for pattern in exclude_patterns
+             for part in parts):
         return False
     elif any(filename.startswith(path) for path in exclude):
         return False
@@ -179,8 +189,7 @@ def report_exceptions(message):
 
 
 def load_file(basedir, filename, site):
-    exclude = site.get('exclude', [])
-    if not is_file_visible(filename, exclude):
+    if not is_file_visible(filename, site):
         return None
     return {
         'files': [{'url': path2url(filename), 'source': filename}],
@@ -235,8 +244,7 @@ def read_page(basedir, filename, url):
 
 
 def load_page(basedir, filename, site):
-    exclude = site.get('exclude', [])
-    if not is_file_visible(filename, exclude):
+    if not is_file_visible(filename, site):
         return None
     name, suffix = os.path.splitext(filename)
     if suffix in file_filters:
@@ -258,8 +266,7 @@ def load_post(basedir, filename, site):
     if '_posts' not in parts:
         return None
     _, name = os.path.split(filename)
-    exclude = site.get('exclude', [])
-    if not is_file_visible(name, exclude):
+    if not is_file_visible(name, site):
         return None
     name, suffix = os.path.splitext(name)
     m = post_re.match(name)
@@ -368,6 +375,7 @@ def load_plugins(basedir):
 def load_site(basedir):
     log('Loading source files...')
     site = load_yaml_mapping(os.path.join(basedir, '_config.yml'))
+    site = merge(site, default_site)
     site['time'] = datetime.utcnow()
     n = 0
     for i, abspath in enumerate(all_files(basedir)):
