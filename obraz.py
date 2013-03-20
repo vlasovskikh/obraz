@@ -69,8 +69,7 @@ retcode = 0
 def all_files(basedir):
     for path, dirs, files in os.walk(basedir):
         for filename in files:
-            if is_file_visible(filename):
-                yield os.path.join(path, filename)
+            yield os.path.join(path, filename)
 
 
 def load_yaml_mapping(filename):
