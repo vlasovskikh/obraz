@@ -52,19 +52,12 @@ from jinja2.exceptions import TemplateSyntaxError
 
 PAGE_ENCODING = 'UTF-8'
 
-loaders = []
-processors = []
-file_filters = {
-    '.md':          markdown,
-    '.markdown':    markdown,
-}
-template_filters = {
-    'markdownify':  markdown,
-}
-retcode = 0
-
-
-default_site = {
+_retcode = 0
+_loaders = []
+_processors = []
+_file_filters = {}
+_template_filters = {}
+_default_site = {
     'include': ['.htaccess'],
     'exclude_patterns': [
         r'^[\.#_].*',
@@ -72,6 +65,45 @@ default_site = {
         r'.*\.s[uvw][a-z]$',  # *.swp files, etc.
     ],
 }
+
+
+def file_filter(extensions):
+    """Register a page content filter for file extensions."""
+    def wrapper(f):
+        for ext in extensions:
+            _file_filters[ext] = f
+        return f
+    return wrapper
+
+
+def template_filter(name):
+    """Register a template filter."""
+    def wrapper(f):
+        _template_filters[name] = f
+        return f
+    return wrapper
+
+
+def loader(f):
+    """Register a site source content loader."""
+    _loaders.insert(0, f)
+    return f
+
+
+def processor(f):
+    """Register a site content processor."""
+    _processors.insert(0, f)
+
+
+def generator(f):
+    """Register a destination files generator for the site."""
+    _processors.append(f)
+    return f
+
+
+def fallback_loader(f):
+    _loaders.append(f)
+    return f
 
 
 def all_files(basedir):
@@ -110,6 +142,7 @@ def merge(x1, x2):
 
 
 def is_file_visible(filename, site):
+    """Check file name visibility according to site settings."""
     parts = filename.split(os.path.sep)
     exclude = site.get('exclude', [])
     exclude_patterns = site.get('exclude_patterns', [])
@@ -182,12 +215,19 @@ def report_exceptions(message):
     try:
         yield
     except Exception as e:
-        global retcode
-        retcode = 1
+        global _retcode
+        _retcode = 1
         log('Error when {0}: {1}'.format(message, e))
         log(traceback.format_exc())
 
 
+@template_filter('markdownify')
+@file_filter(['.md', '.markdown'])
+def markdown_filter(s):
+    return markdown(s)
+
+
+@fallback_loader
 def load_file(basedir, filename, site):
     if not is_file_visible(filename, site):
         return None
@@ -199,7 +239,7 @@ def load_file(basedir, filename, site):
 def render_string(basedir, s, context, filename, offset=0):
     includes = os.path.join(basedir, '_includes')
     env = Environment(loader=FileSystemLoader(includes))
-    env.filters.update(template_filters)
+    env.filters.update(_template_filters)
     try:
         t = env.from_string(s)
         return t.render(**context)
@@ -237,17 +277,18 @@ def read_page(basedir, filename, url):
     if not page:
         return None
     page['url'] = url
-    f = file_filters.get(file_suffix(filename))
+    f = _file_filters.get(file_suffix(filename))
     if f:
         page['content'] = f(page['content'])
     return page
 
 
+@loader
 def load_page(basedir, filename, site):
     if not is_file_visible(filename, site):
         return None
     name, suffix = os.path.splitext(filename)
-    if suffix in file_filters:
+    if suffix in _file_filters:
         dst = '{0}.html'.format(name)
     else:
         dst = filename
@@ -259,6 +300,7 @@ def load_page(basedir, filename, site):
     }
 
 
+@loader
 def load_post(basedir, filename, site):
     post_re = re.compile('(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-'
                          '(?P<title>.+)')
@@ -323,6 +365,7 @@ def render_page(basedir, page, site):
     return render_layout(basedir, content, page, site)
 
 
+@processor
 def process_posts(basedir, destdir, site):
     """Sort and interlink posts."""
     posts = site.setdefault('posts', [])
@@ -335,6 +378,7 @@ def process_posts(basedir, destdir, site):
             post['previous'] = posts[i - 1]
 
 
+@generator
 def generate_pages(basedir, destdir, site):
     """Generate pages with YAML front matter."""
     for page in site.get('pages', []):
@@ -350,6 +394,7 @@ def generate_pages(basedir, destdir, site):
                 fd.write(rendered.encode(PAGE_ENCODING))
 
 
+@generator
 def generate_files(basedir, destdir, site):
     """Copy static files."""
     for file_dict in site.get('files', []):
@@ -375,13 +420,13 @@ def load_plugins(basedir):
 def load_site(basedir):
     log('Loading source files...')
     site = load_yaml_mapping(os.path.join(basedir, '_config.yml'))
-    site = merge(site, default_site)
+    site = merge(site, _default_site)
     site['time'] = datetime.utcnow()
     n = 0
     for i, abspath in enumerate(all_files(basedir)):
         relpath = os.path.relpath(abspath, basedir)
         with report_exceptions('loading {0}'.format(relpath)):
-            for loader in loaders:
+            for loader in _loaders:
                 data = loader(basedir, relpath, site)
                 if data:
                     n += 1
@@ -396,12 +441,12 @@ def generate_site(basedir, site):
     makedirs(destdir)
     for name in os.listdir(destdir):
         remove(os.path.join(destdir, name))
-    for processor in processors:
+    for processor in _processors:
         msg = object_name(processor)
         log('{0}...'.format(msg))
         with report_exceptions(msg):
             processor(basedir, destdir, site)
-    if retcode == 0:
+    if _retcode == 0:
         log('Site generated successfully')
     else:
         log('Generation failed, check output for details')
@@ -419,21 +464,7 @@ def main():
         log(__doc__)
         sys.exit(1)
     obraz(args[0])
-    sys.exit(retcode)
-
-
-loaders.extend([
-    load_post,
-    load_page,
-    load_file,
-])
-
-
-processors.extend([
-    process_posts,
-    generate_pages,
-    generate_files,
-])
+    sys.exit(_retcode)
 
 
 if __name__ == '__main__':
