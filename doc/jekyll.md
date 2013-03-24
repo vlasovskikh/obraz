@@ -69,7 +69,7 @@ Not Implemented Yet
 * Some config options
 
     The following `_config.yml` options are not supported: `baseurl`, `future`,
-    `include`, `limit_posts`.
+    `limit_posts`.
 
 * Textile formatting
 
