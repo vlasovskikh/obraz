@@ -44,9 +44,9 @@ Different
 
 * Plugin system
 
-    Obraz 0.2 introduces an experimental plugin system. It may be changed
-    significantly in the future releases. Please refer to the [announcement][5]
-    and the [source code][6] for more info.
+    Obraz has an experimental [plugin system][5]. It may be changed
+    significantly in the future releases. Please refer the [source code][6]
+    for more info.
 
 
 Not Implemented Yet
@@ -81,8 +81,8 @@ Not in Obraz
 
 * Jekyll-compatible plugin system
 
-    The plugin system of Obraz will never be compatible with Jekyll (Python vs
-    Ruby).
+    The [plugin system][5] of Obraz will never be compatible with Jekyll
+    (Python vs Ruby).
 
 * Built-in web server
 
@@ -113,6 +113,6 @@ your reports to the [bug tracker][4].
   [2]: http://jinja.pocoo.org/docs/templates/
   [3]: http://softwaremaniacs.org/soft/highlight/en/
   [4]: https://bitbucket.org/vlasovskikh/obraz/issues
-  [5]: http://obraz.pirx.ru/2012/06/02/obraz-0.2.html
+  [5]: /plugins.html
   [6]: https://bitbucket.org/vlasovskikh/obraz/src/master/obraz.py
 
