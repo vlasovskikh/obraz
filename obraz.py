@@ -93,6 +93,7 @@ def loader(f):
 def processor(f):
     """Register a site content processor."""
     _processors.insert(0, f)
+    return f
 
 
 def generator(f):
