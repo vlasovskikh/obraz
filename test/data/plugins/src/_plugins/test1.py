@@ -10,7 +10,7 @@ def load_capitals(basedir, filename, site):
     if filename != capitals_filename:
         return None
     path = os.path.join(basedir, filename)
-    with open(path, 'rb') as fd:
+    with open(path, 'r') as fd:
         reader = csv.reader(fd)
         test1_site['capitals'] = dict((country, capital)
                                       for capital, country in reader)
