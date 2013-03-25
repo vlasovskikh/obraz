@@ -1,14 +1,17 @@
 import shutil
+import imp
 import os
 import unittest
 import tempfile
 import subprocess
+import sys
 
-from obraz import obraz
+import obraz
 
 
 class ObrazTest(unittest.TestCase):
     def setUp(self):
+        imp.reload(obraz)
         testdir = os.path.dirname(__file__)
         self.datadir = os.path.join(testdir, 'data')
 
@@ -19,13 +22,15 @@ class ObrazTest(unittest.TestCase):
         try:
             basedir = os.path.join(tempdir, 'basedir')
             shutil.copytree(src, basedir)
-            obraz(basedir)
+            obraz.obraz(basedir)
             destdir = os.path.join(basedir, '_site')
             diff = subprocess.Popen(['diff', '-urw', site, destdir],
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
             stdout, stderr = diff.communicate()
-            self.assertEqual(diff.returncode, 0, stdout)
+            if diff.returncode != 0:
+                sys.stderr.write(stdout.decode('UTF-8'))
+                self.assertEqual(diff.returncode, 0)
         finally:
             shutil.rmtree(tempdir)
 
