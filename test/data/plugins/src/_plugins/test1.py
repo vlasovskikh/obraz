@@ -18,7 +18,7 @@ def load_capitals(basedir, filename, site):
 
 @obraz.processor
 def process_size(basedir, destdir, site):
-    for page in site['pages']:
+    for page in site.get('pages', {}):
         page['size'] = len(page['content'])
 
 
