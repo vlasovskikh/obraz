@@ -13,14 +13,15 @@ class ObrazTest(unittest.TestCase):
         self.datadir = os.path.join(testdir, 'data')
 
     def do(self, name):
-        before = os.path.join(self.datadir, name, 'before')
-        after = os.path.join(self.datadir, name, 'after')
+        src = os.path.join(self.datadir, name, 'src')
+        site = os.path.join(self.datadir, name, 'site')
         tempdir = tempfile.mkdtemp()
         try:
             basedir = os.path.join(tempdir, 'basedir')
-            shutil.copytree(before, basedir)
+            shutil.copytree(src, basedir)
             obraz(basedir)
-            diff = subprocess.Popen(['diff', '-urw', after, basedir],
+            destdir = os.path.join(basedir, '_site')
+            diff = subprocess.Popen(['diff', '-urw', site, destdir],
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
             stdout, stderr = diff.communicate()
