@@ -1,5 +1,7 @@
 /* Ubuntu font licensed under UFL <http://font.ubuntu.com/ufl/> */
 
+@import "highlight.min.css";
+
 @font-face {
     font-family: "Ubuntu";
     font-style: normal;
