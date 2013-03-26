@@ -6,11 +6,37 @@ title: Obraz Plugin System
 {{ page.title }}
 ================
 
-TODO: Document the Obraz plugins API, available bundled and third-party
-plugins.
+_The Obraz plugin system is still considered experimental and may be changed
+significantly in the future versions._
 
-TODO: Describe what is the site for Obraz. Describe the load, process and
-generate stages of site processing.
+
+Site Model
+----------
+
+Obraz represents the site being generated as a Python dictionary internally. It
+is the same dictionary as `site` in Jekyll [template data][2].
+
+The generation process consists of three steps:
+
+1. Loader functions populate the site dictionary by reading source files from
+   the base directory
+2. Processor functions modify the site dictionary (e.g. sort data)
+3. Generator functions create files in the destination directory based on the
+   site dictionary
+
+Functions for all these steps are registered via extension point decorators.
+This applies to third-party plugin functions as well as to the processing
+functions in Obraz itself.
+
+
+Plugins
+-------
+
+Plugins are Python files that should be put into the `_plugins` directory of
+the site. Plugins can import the `obraz` module and register extension
+functions via extension point decorators.
+
+_Note:_ There will be a third-party plugin repository with commonly used plugins.
 
 
 Extension Points
@@ -36,11 +62,19 @@ Extension Points
 
 * **`@obraz.template_filter(name)`**
 
-    Register a template filter.
+    Register a template filter. Jinja2 [template filters][1] allow filtering
+    variables in templates.
 
     A template filter is a function of type `(content: str) -> str`.
 
-    TODO
+    Example:
+
+        import obraz
+        from markdown import markdown
+
+        @obraz.template_filter('markdownify')
+        def markdownify(content):
+            return markdown(content)
 
 * **`@obraz.loader`**
 
@@ -75,3 +109,7 @@ Other Functions
 
 You may use all functions defined in `obraz`, but they are not a part of the
 plugins API and may be changed or removed in future versions.
+
+
+  [1]: http://jinja.pocoo.org/docs/templates/#filters
+  [2]: https://github.com/mojombo/jekyll/wiki/template-data
