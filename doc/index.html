@@ -7,19 +7,20 @@ heading:
   </section>
 ---
 
-<script type="text/javascript" src="/media/jquery-1.7.2.min.js"></script>
 <script type="text/javascript">
-  $(document).ready(function () {
-      var contents = $('#quickstart .file-content');
-      $('#quickstart .dynamic-link').click(function (e) {
-          var content = $('#quickstart .file-content[filename="' + $(this).text() + '"]');
-          var hidden = !content.is(':visible');
-          contents.fadeOut();
-          if (hidden) {
-              content.fadeIn();
-          }
-          e.stopPropagation();
-      });
+  $(window).load(function () {
+    var quickstart = $('#quickstart');
+    var contents = quickstart.find('.file-content');
+    var links = quickstart.find('.dynamic-link');
+    links.click(function (e) {
+      var content = quickstart.find('.file-content[filename="' + $(this).text() + '"]');
+      var hidden = !content.is(':visible');
+      contents.fadeOut();
+      if (hidden) {
+        content.fadeIn();
+      }
+      e.stopPropagation();
+    });
   });
 </script>
 <section>
