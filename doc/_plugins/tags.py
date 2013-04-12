@@ -58,7 +58,6 @@ default_page_info = {
 def process_tags(basedir, destdir, site):
     """Processing tags."""
     pages = site.get('pages', [])
-    site.get('pages')
     settings = site.get('tags_plugin', {})
     for page_info in settings.get('pages', [default_page_info]):
         for tag, posts in site.get('tags', {}).items():
