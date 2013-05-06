@@ -66,10 +66,18 @@ Not Implemented Yet
 
     Related posts in template data (`site.related_posts`) are not supported.
 
+* Page excerpt
+
+    Page excerpt in template data (`page.excerpt`) is not supported.
+
+* Page path
+
+    The path to the raw page in template data (`page.path`) is not supported.
+
 * Some config options
 
-    The following `_config.yml` options are not supported: `future`,
-    `limit_posts`.
+    The following `_config.yml` options are not supported: `source`,
+    `destination`, `safe`, `timezone`, `future`, `lsi`, `limit_posts`.
 
 * Textile formatting
 
@@ -109,7 +117,7 @@ Found an incompatible behaviour or want to request a new feature? Please post
 your reports to the [bug tracker][4].
 
 
-  [1]: https://github.com/mojombo/jekyll/wiki
+  [1]: http://jekyllrb.com/docs
   [2]: http://jinja.pocoo.org/docs/templates/
   [3]: http://softwaremaniacs.org/soft/highlight/en/
   [4]: https://bitbucket.org/vlasovskikh/obraz/issues

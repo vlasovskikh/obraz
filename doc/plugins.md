@@ -28,6 +28,9 @@ Functions for all these steps are registered via extension point decorators.
 This applies to third-party plugin functions as well as to the processing
 functions in Obraz itself.
 
+There are also a couple of extension points that allow to define content and
+template filters.
+
 
 Plugins
 -------
@@ -36,7 +39,8 @@ Plugins are Python files that should be put into the `_plugins` directory of
 the site. Plugins can import the `obraz` module and register extension
 functions via extension point decorators.
 
-_Note:_ There will be a third-party plugin repository with commonly used plugins.
+_Note:_ There will be a third-party plugin repository with commonly used
+plugins.
 
 
 Extension Points
@@ -112,4 +116,4 @@ plugins API and may be changed or removed in future versions.
 
 
   [1]: http://jinja.pocoo.org/docs/templates/#filters
-  [2]: https://github.com/mojombo/jekyll/wiki/template-data
+  [2]: http://jekyllrb.com/docs/variables/
