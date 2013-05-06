@@ -96,6 +96,33 @@ Extension Points
     A site content processor is a fuction of type `(basedir: str, destdir: str,
     site: dict) -> None`.
 
+    Example:
+
+        import os
+        import obraz
+        from PIL import Image
+        from PIL.ExifTags import TAGS
+
+
+        def read_exif(filename):
+            img = Image.open(filename)
+            exif = img._getexif()
+            if exif:
+                return {TAGS[k]: v for k, v in exif.items() if k in TAGS}
+            else:
+                return {}
+
+
+        @obraz.processor
+        def process_exif(basedir, destdir, site):
+            """Processing EXIF metadata."""
+            for file in site.get('files', []):
+                filename = os.path.join(basedir, file['source'])
+                exif = read_exif(filename)
+                if exif:
+                    file['exif'] = exif
+
+
     TODO
 
 * **`@obraz.generator`**
