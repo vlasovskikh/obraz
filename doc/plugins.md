@@ -46,40 +46,6 @@ plugins.
 Extension Points
 ----------------
 
-* **`@obraz.file_filter(extensions)`**
-
-    Register a page content filter for file extensions.
-
-    File filters are useful for supporting alternative markup languages, such
-    as Textile or ReStructured Text.
-
-    A file filter is a function of type `(content: str) -> str`.
-
-    Example:
-
-        import obraz
-        from markdown import markdown
-
-        @obraz.file_filter(['.md', '.mkdn'])
-        def markdown_filter(content):
-            return markdown(content, ['tables', 'footnotes'])
-
-* **`@obraz.template_filter(name)`**
-
-    Register a template filter. Jinja2 [template filters][1] allow filtering
-    variables in templates.
-
-    A template filter is a function of type `(content: str) -> str`.
-
-    Example:
-
-        import obraz
-        from markdown import markdown
-
-        @obraz.template_filter('markdownify')
-        def markdownify(content):
-            return markdown(content)
-
 * **`@obraz.loader`**
 
     Register a site source content loader.
@@ -133,6 +99,40 @@ Extension Points
     site: dict) -> None`.
 
     TODO
+
+* **`@obraz.file_filter(extensions)`**
+
+    Register a page content filter for file extensions.
+
+    File filters are useful for supporting alternative markup languages, such
+    as Textile or ReStructured Text.
+
+    A file filter is a function of type `(content: str) -> str`.
+
+    Example:
+
+        import obraz
+        from markdown import markdown
+
+        @obraz.file_filter(['.md', '.mkdn'])
+        def markdown_filter(content):
+            return markdown(content, ['tables', 'footnotes'])
+
+* **`@obraz.template_filter(name)`**
+
+    Register a template filter. Jinja2 [template filters][1] allow filtering
+    variables in templates.
+
+    A template filter is a function of type `(content: str) -> str`.
+
+    Example:
+
+        import obraz
+        from markdown import markdown
+
+        @obraz.template_filter('markdownify')
+        def markdownify(content):
+            return markdown(content)
 
 
 Other Functions
