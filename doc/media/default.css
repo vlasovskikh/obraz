@@ -184,3 +184,7 @@ a {
     margin: 1em 0 0 0;
 }
 
+#videos ul {
+    list-style-position: inside;
+    padding: 0;
+}
