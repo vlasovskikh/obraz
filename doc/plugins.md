@@ -50,14 +50,42 @@ Extension Points
 
     Register a site source content loader.
 
+    Source content loaders transform a filename from the site base directory
+    into a dictionary that will be merged by Obraz into the `site` dictionary.
+    If the loader wants to skip a file passing it to other loaders, then it
+    should return `None`.
+
+    Loaders are useful when you have source files in some format that you want
+    to parse and make available as a part of the site dictionary instead of
+    treating them like pages with YAML front matter or regular static files.
+
     A site content loader is a fuction of type `(basedir: str, filename: str,
     site: dict) -> dict`.
 
-    TODO
+    Example:
+
+        import os
+        import xml.etree.ElementTree as etree
+        import obraz
+
+        @obraz.loader
+        def load_checkins(basedir, filename, site):
+            if not obraz.is_file_visible(filename, site):
+                return None
+            if not filename.endswith('.kml'):
+                return None
+            path = os.path.join(basedir, filename)
+            root = etree.parse(path)
+            return {
+                'checkins': root.findall('Folder/Placemark'),
+            }
 
 * **`@obraz.processor`**
 
     Register a site content processor.
+
+    Content processors are useful when you need to extend or rearrange already
+    existing site data.
 
     A site content processor is a fuction of type `(basedir: str, destdir: str,
     site: dict) -> None`.
@@ -70,8 +98,8 @@ Extension Points
         from PIL.ExifTags import TAGS
 
 
-        def read_exif(filename):
-            img = Image.open(filename)
+        def read_exif(path):
+            img = Image.open(path)
             exif = img._getexif()
             if exif:
                 return {TAGS[k]: v for k, v in exif.items() if k in TAGS}
@@ -83,13 +111,12 @@ Extension Points
         def process_exif(basedir, destdir, site):
             """Processing EXIF metadata."""
             for file in site.get('files', []):
-                filename = os.path.join(basedir, file['source'])
+                path = os.path.join(basedir, file['source'])
+                if not path.endswith('.jpg'):
+                    continue
                 exif = read_exif(filename)
                 if exif:
                     file['exif'] = exif
-
-
-    TODO
 
 * **`@obraz.generator`**
 
