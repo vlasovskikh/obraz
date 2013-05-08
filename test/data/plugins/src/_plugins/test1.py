@@ -12,9 +12,12 @@ def load_capitals(basedir, filename, site):
     path = os.path.join(basedir, filename)
     with open(path, 'r') as fd:
         reader = csv.reader(fd)
-        test1_site['capitals'] = dict((country, capital)
-                                      for capital, country in reader)
-
+        capitals = dict((country, capital) for capital, country in reader)
+    return {
+        'test1': {
+            'capitals': capitals,
+        }
+    }
 
 @obraz.processor
 def process_size(basedir, destdir, site):
