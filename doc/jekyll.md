@@ -45,8 +45,7 @@ Different
 * Plugin system
 
     Obraz has an experimental [plugin system][5]. It may be changed
-    significantly in the future releases. Please refer the [source code][6]
-    for more info.
+    significantly in the future releases.
 
 
 Not Implemented Yet
