@@ -10,13 +10,39 @@ _The Obraz plugin system is still considered experimental and may be changed
 significantly in the future versions._
 
 
+Plugins
+-------
+
+Plugins allow to extend the site generation process via user-defined processing
+functions.
+
+Consider a photo hosting example. By writing a custom plugin you can:
+
+* Use album data from your media library stored in a SQL database
+* Add EXIF metadata from images to your photo pages
+* Generate re-sized images and thumbnails
+
+Plugins are Python files that should be put into the `_plugins` directory of
+the site.
+
+
+Available Plugins
+-----------------
+
+* [Tags](https://bitbucket.org/vlasovskikh/obraz/src/master/doc/_plugins/tags.py)
+  by [Andrey Vlasovskikh](http://pirx.ru/): Generate per-tag pages
+
+_Note:_ You can add your plugins to this list by sending a pull request to the
+[Obraz repository][3] at Bitbucket.
+
+
 Site Model
 ----------
 
-Obraz represents the site being generated as a Python dictionary internally. It
-is the same dictionary as `site` in Jekyll [template data][2].
+Internally Obraz represents the site being generated as a Python dictionary.
+This is the same dictionary as `site` in Jekyll [template data][2].
 
-The generation process consists of three steps:
+The generation process is split into three steps:
 
 1. Loader functions populate the site dictionary by reading source files from
    the base directory
@@ -32,17 +58,6 @@ There are also a couple of extension points that allow to define content and
 template filters.
 
 
-Plugins
--------
-
-Plugins are Python files that should be put into the `_plugins` directory of
-the site. Plugins can import the `obraz` module and register extension
-functions via extension point decorators.
-
-_Note:_ There will be a third-party plugin repository with commonly used
-plugins.
-
-
 Extension Points
 ----------------
 
@@ -52,8 +67,9 @@ Extension Points
 
     Source content loaders transform a filename from the site base directory
     into a dictionary that will be merged by Obraz into the `site` dictionary.
-    If the loader wants to skip a file passing it to other loaders, then it
-    should return `None`.
+    If the loader wants to skip a file and pass it to other loaders, then it
+    should return `None`. Loaders are not allowed to modify their `site`
+    parameter.
 
     Loaders are useful when you have source files in some format that you want
     to parse and make available as a part of the site dictionary instead of
@@ -70,6 +86,7 @@ Extension Points
 
         @obraz.loader
         def load_checkins(basedir, filename, site):
+            """Loading check-ins from a KML file."""
             if not obraz.is_file_visible(filename, site):
                 return None
             if not filename.endswith('.kml'):
@@ -122,10 +139,31 @@ Extension Points
 
     Register a generator of destination files for the site.
 
+    Generators are useful when you need to create additional generated files
+    you need at your site, e.g. tag pages or image thumbnails.
+
     A site content generator is a fuction of type `(basedir: str, destdir: str,
     site: dict) -> None`.
 
-    TODO
+        import os
+        import obraz
+        from PIL import Image
+
+        size = 300
+
+        @obraz.generator
+        def generate_thumbnails(basedir, destdir, site):
+            """Generating thumbnails."""
+            for file in site.get('files', []):
+                filename = file['source']
+                if not filename.endswith('.jpg'):
+                    return None
+                img = Image.open(os.path.join(basedir, filename))
+                img.thumbnail((size, size), Image.ANTIALIAS)
+                name, ext = os.path.splitext(filename)
+                new_filename = '{0}-{1}{2}'.format(name, size, ext)
+                img.save(os.path.join(destdir, new_filename), 'JPEG')
+
 
 * **`@obraz.file_filter(extensions)`**
 
@@ -143,6 +181,7 @@ Extension Points
 
         @obraz.file_filter(['.md', '.mkdn'])
         def markdown_filter(content):
+            """Render Mardown files with tables and footnotes extensions."""
             return markdown(content, ['tables', 'footnotes'])
 
 * **`@obraz.template_filter(name)`**
@@ -159,11 +198,23 @@ Extension Points
 
         @obraz.template_filter('markdownify')
         def markdownify(content):
+            """Markdown Jinja2 template filter."""
             return markdown(content)
 
 
-Other Functions
----------------
+Development Notes
+-----------------
+
+The easiest way of getting started with plugin development is to read source
+code of other plugins.
+
+Please document your plugin carefully in the plugin file docstring. Don't
+forget to mention Obraz version compatiblity, required libraries, configuration
+parameters.
+
+If a plugin needs configuration parameters, the best place for them is a
+separate section in `_config.yml`. The contents of this YAML file will
+be available for the plugin as a part of `site`.
 
 You may use all functions defined in `obraz`, but they are not a part of the
 plugins API and may be changed or removed in future versions.
@@ -171,3 +222,4 @@ plugins API and may be changed or removed in future versions.
 
   [1]: http://jinja.pocoo.org/docs/templates/#filters
   [2]: http://jekyllrb.com/docs/variables/
+  [3]: https://bitbucket.org/vlasovskikh/obraz
