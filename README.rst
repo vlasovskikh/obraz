@@ -1,6 +1,10 @@
 Obraz
 =====
 
+.. image:: https://drone.io/bitbucket.org/vlasovskikh/obraz/status.png
+   :alt: Build Status
+   :target: https://drone.io/bitbucket.org/vlasovskikh/obraz/latest
+
 **Obraz** (*Russian: Образ*). IPA: /ˈobrəs/ *n.*
 
 1. Image, the result of applying a function to an argument
