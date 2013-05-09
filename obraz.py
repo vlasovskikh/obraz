@@ -53,6 +53,7 @@ from jinja2.exceptions import TemplateSyntaxError
 PAGE_ENCODING = 'UTF-8'
 
 _retcode = 0
+_verbose = 0
 _loaders = []
 _processors = []
 _file_filters = {}
@@ -191,6 +192,15 @@ def remove(path):
             pass
 
 
+def info(message):
+    if _verbose > 0:
+        log(message)
+
+
+def error(message):
+    log(message)
+
+
 def log(message):
     sys.stderr.write('{0}\n'.format(message))
     sys.stderr.flush()
@@ -218,8 +228,8 @@ def report_exceptions(message):
     except Exception as e:
         global _retcode
         _retcode = 1
-        log('Error when {0}: {1}'.format(message, e))
-        log(traceback.format_exc())
+        error('Error when {0}: {1}'.format(message, e))
+        error(traceback.format_exc())
 
 
 @template_filter('markdownify')
@@ -415,11 +425,11 @@ def load_plugins(basedir):
                 exec(code, {})
             n += 1
     if n > 0:
-        log('Loaded {0} plugins'.format(n))
+        info('Loaded {0} plugins'.format(n))
 
 
 def load_site(basedir):
-    log('Loading source files...')
+    info('Loading source files...')
     site = load_yaml_mapping(os.path.join(basedir, '_config.yml'))
     site = merge(site, _default_site)
     site['time'] = datetime.utcnow()
@@ -433,7 +443,7 @@ def load_site(basedir):
                     n += 1
                     site = merge(site, data)
                     break
-    log('Loaded {0} files'.format(n))
+    info('Loaded {0} files'.format(n))
     return site
 
 
@@ -444,13 +454,13 @@ def generate_site(basedir, site):
         remove(os.path.join(destdir, name))
     for processor in _processors:
         msg = object_name(processor)
-        log('{0}...'.format(msg))
+        info('{0}...'.format(msg))
         with report_exceptions(msg):
             processor(basedir, destdir, site)
     if _retcode == 0:
-        log('Site generated successfully')
+        info('Site generated successfully')
     else:
-        log('Generation failed, check output for details')
+        info('Generation failed, check output for details')
 
 
 def obraz(basedir):
@@ -462,8 +472,10 @@ def obraz(basedir):
 def main():
     args = sys.argv[1:]
     if '-h' in args or '--help' in args or not args:
-        log(__doc__)
+        info(__doc__)
         sys.exit(1)
+    global _verbose
+    _verbose = 1
     obraz(args[0])
     sys.exit(_retcode)
 
