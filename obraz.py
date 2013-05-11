@@ -470,12 +470,12 @@ def obraz(basedir):
 
 
 def main():
+    global _verbose
+    _verbose = 1
     args = sys.argv[1:]
     if '-h' in args or '--help' in args or not args:
         info(__doc__)
         sys.exit(1)
-    global _verbose
-    _verbose = 1
     obraz(args[0])
     sys.exit(_retcode)
 
