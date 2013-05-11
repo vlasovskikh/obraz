@@ -116,7 +116,7 @@ Found an incompatible behaviour or want to request a new feature? Please post
 your reports to the [bug tracker][4].
 
 
-  [1]: http://jekyllrb.com/docs
+  [1]: http://jekyllrb.com/docs/home/
   [2]: http://jinja.pocoo.org/docs/templates/
   [3]: http://softwaremaniacs.org/soft/highlight/en/
   [4]: https://bitbucket.org/vlasovskikh/obraz/issues
