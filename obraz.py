@@ -29,6 +29,7 @@ Usage:
 For documentation see <http://obraz.pirx.ru/>."""
 
 
+from __future__ import unicode_literals
 import sys
 import os
 import re
