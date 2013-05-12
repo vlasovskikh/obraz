@@ -24,17 +24,22 @@
 
 Usage:
     obraz build [options]
+    obraz serve [options]
     obraz -h|--help
 
 Options:
-    -s --source=DIR         Source directory [default: ./]
-    -d --destination=DIR    Destination directory [default: ./_site]
+    -s --source=DIR         Source directory.
+    -d --destination=DIR    Destination directory.
+
+    --host=HOSTNAME         Listen at the given hostname.
+    --port=PORT             Listen at the given port.
+    --baseurl=URL           Serve the website from the given base URL.
+
     -q --quiet              Be quiet.
     -v --version            Show version.
     -h --help               Show help message.
 
 For documentation see <http://obraz.pirx.ru/>."""
-
 
 from __future__ import unicode_literals
 import sys
@@ -49,8 +54,11 @@ import traceback
 
 try:
     from urllib.request import pathname2url, url2pathname
+    from http.server import SimpleHTTPRequestHandler, HTTPServer
 except ImportError:
     from urllib import pathname2url, url2pathname
+    from SimpleHTTPServer import SimpleHTTPRequestHandler
+    from BaseHTTPServer import HTTPServer
 
 import yaml
 from markdown import markdown
@@ -77,6 +85,9 @@ _default_site = {
         r'.*~$',
         r'.*\.s[uvw][a-z]$',  # *.swp files, etc.
     ],
+    'host': '0.0.0.0',
+    'port': '8000',
+    'baseurl': '',
 }
 
 
@@ -474,9 +485,36 @@ def generate_site(site):
 
 
 def build(site):
+    info('Source: {0}'.format(os.path.abspath(site['source'])))
+    info('Destination: {0}'.format(os.path.abspath(site['destination'])))
     load_plugins(site['source'])
     site = load_site(site)
     generate_site(site)
+
+
+def serve(site):
+    build(site)
+    if _return_code > 0:
+        sys.exit(_return_code)
+
+    host = site['host']
+    port = int(site['port'])
+    baseurl = site['baseurl']
+
+    class Handler(SimpleHTTPRequestHandler):
+        def send_head(self):
+            if not self.path.startswith(baseurl):
+                self.send_error(404, 'File not found')
+                return None
+            self.path = self.path[len(baseurl):]
+            if not self.path.startswith('/'):
+                self.path = '/' + self.path
+            return SimpleHTTPRequestHandler.send_head(self)
+
+    httpd = HTTPServer((host, port), Handler)
+    info('Serving at {0}:{1}'.format(host, port))
+    os.chdir(site['destination'])
+    httpd.serve_forever()
 
 
 def obraz(argv):
@@ -485,22 +523,24 @@ def obraz(argv):
     _quiet = opts['--quiet']
 
     site = _default_site.copy()
-    config = os.path.join(opts['--source'], '_config.yml')
+    source = opts['--source'] if opts['--source'] else './'
+    config = os.path.join(source, '_config.yml')
     site.update(load_yaml_mapping(config))
     site['time'] = datetime.utcnow()
-
-    if opts['--source'] != './':
-        site['source'] = opts['--source']
-    if opts['--destination'] != './_site':
-        site['destination'] = opts['--destination']
-    info('Source: {0}'.format(os.path.abspath(site['source'])))
-    info('Destination: {0}'.format(os.path.abspath(site['destination'])))
+    for k, v in opts.items():
+        if k.startswith('--') and v:
+            site[k[2:]] = v
 
     if opts['build']:
         build(site)
+    elif opts['serve']:
+        serve(site)
 
 
 if __name__ == '__main__':
     sys.modules['obraz'] = sys.modules[__name__]
-    obraz(sys.argv[1:])
+    try:
+        obraz(sys.argv[1:])
+    except KeyboardInterrupt:
+        info('Interrupted')
     sys.exit(_return_code)

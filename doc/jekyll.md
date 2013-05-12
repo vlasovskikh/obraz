@@ -71,8 +71,7 @@ Not Implemented Yet
 * Some command-line flags
 
     The following command-line flags are not supported: `--safe`, `--watch`,
-    `--config`, `--drafts`, `--future`, `--lsi`, `--limit_posts`, `--port`,
-    `--host`, `--baseurl`.
+    `--config`, `--drafts`, `--future`, `--lsi`, `--limit_posts`.
 
 * Some config options
 
@@ -91,15 +90,6 @@ Not in Obraz
 
     The [plugin system][5] of Obraz will never be compatible with Jekyll
     (Python vs Ruby).
-
-* Built-in web server and `serve` command
-
-    Obraz comes with no built-in web server. There are many lightweight web
-    servers available. For example, there is a web server in the Python standard
-    library:
-
-        $ cd /path/to/site
-        $ python -m SimpleHTTPServer
 
 * Syntax highlighting
 
