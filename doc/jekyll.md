@@ -26,13 +26,6 @@ Different
 
     Jekyll filters in Obraz: `markdownify`.
 
-* No command line options
-
-    Obraz has no command line options (apart from `--help`) and it accepts only
-    one required command line argument: the site source. The site destination
-    is always `_site`. You can specify options only via configuration
-    parameters in `_config.yml`.
-
 * Permalink syntax
 
     Permalinks are specifed as follows:
@@ -49,7 +42,6 @@ Different
 
 Not Implemented Yet
 -------------------
-
 
 * Categories of posts
 
@@ -72,10 +64,20 @@ Not Implemented Yet
 
     The path to the raw page in template data (`page.path`) is not supported.
 
+* New site command
+
+    The `new` command is not supported.
+
+* Some command-line flags
+
+    The following command-line flags are not supported: `--safe`, `--watch`,
+    `--config`, `--drafts`, `--future`, `--lsi`, `--limit_posts`, `--port`,
+    `--host`, `--baseurl`.
+
 * Some config options
 
-    The following `_config.yml` options are not supported: `source`,
-    `destination`, `safe`, `timezone`, `future`, `lsi`, `limit_posts`.
+    The following `_config.yml` options are not supported: `safe`, `timezone`,
+    `future`, `lsi`, `limit_posts`.
 
 * Textile formatting
 
@@ -90,7 +92,7 @@ Not in Obraz
     The [plugin system][5] of Obraz will never be compatible with Jekyll
     (Python vs Ruby).
 
-* Built-in web server
+* Built-in web server and `serve` command
 
     Obraz comes with no built-in web server. There are many lightweight web
     servers available. For example, there is a web server in the Python standard
@@ -105,7 +107,7 @@ Not in Obraz
     [highlight.js][3] library to highlight your code using only _two_ lines of
     JavaScript code.
 
-* Blog migration tools
+* Blog migration tools and `import` command
 
     Obraz doesn't contain any blog migration tools. Use the tools from Jekyll in
     order to migrate from popular blog hosting sites to Obraz.

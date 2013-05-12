@@ -23,12 +23,15 @@
 """Static site generator in a single Python file similar to Jekyll.
 
 Usage:
-    obraz [options] SOURCE
+    obraz build [options]
     obraz -h|--help
 
 Options:
-    -h --help       Show help message.
-    -v --version    Show version.
+    -s --source=DIR         Source directory [default: ./]
+    -d --destination=DIR    Destination directory [default: ./_site]
+    -q --quiet              Be quiet.
+    -v --version            Show version.
+    -h --help               Show help message.
 
 For documentation see <http://obraz.pirx.ru/>."""
 
@@ -59,14 +62,14 @@ from docopt import docopt
 PAGE_ENCODING = 'UTF-8'
 
 _return_code = 0
-_verbose = 0
+_quiet = False
 _loaders = []
 _processors = []
 _file_filters = {}
 _template_filters = {}
 _default_site = {
-    'source': '.',
-    'destination': '_site',
+    'source': './',
+    'destination': './_site',
     'include': ['.htaccess'],
     'exclude': [],
     'exclude_patterns': [
@@ -202,7 +205,7 @@ def remove(path):
 
 
 def info(message):
-    if _verbose > 0:
+    if not _quiet:
         log(message)
 
 
@@ -440,8 +443,6 @@ def load_plugins(source):
 def load_site(site):
     source = site['source']
     info('Loading source files...')
-    site.update(load_yaml_mapping(os.path.join(source, '_config.yml')))
-    site['time'] = datetime.utcnow()
     n = 0
     for i, path in enumerate(all_files(source)):
         relpath = os.path.relpath(path, source)
@@ -472,25 +473,29 @@ def generate_site(site):
         info('Generation failed, check output for details')
 
 
-def obraz(source):
+def obraz(argv):
+    opts = docopt(__doc__, argv=argv, version='0.3')
+    global _quiet
+    _quiet = opts['--quiet']
+
     site = _default_site.copy()
-    site['source'] = source
-    site['destination'] = os.path.join(source, '_site')
-    info('Source: {0}'.format(site['source']))
-    info('Destination: {0}'.format(site['destination']))
-    load_plugins(source)
+    config = os.path.join(opts['--source'], '_config.yml')
+    site.update(load_yaml_mapping(config))
+    site['time'] = datetime.utcnow()
+
+    if opts['--source'] != './':
+        site['source'] = opts['--source']
+    if opts['--destination'] != './_site':
+        site['destination'] = opts['--destination']
+    info('Source: {0}'.format(os.path.abspath(site['source'])))
+    info('Destination: {0}'.format(os.path.abspath(site['destination'])))
+
+    load_plugins(site['source'])
     site = load_site(site)
     generate_site(site)
 
 
-def main():
-    global _verbose
-    _verbose = 1
-    opts = docopt(__doc__, argv=sys.argv[1:], version='0.3')
-    obraz(opts['SOURCE'])
-    sys.exit(_return_code)
-
-
 if __name__ == '__main__':
     sys.modules['obraz'] = sys.modules[__name__]
-    main()
+    obraz(sys.argv[1:])
+    sys.exit(_return_code)
