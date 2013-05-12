@@ -28,7 +28,7 @@ Jekyll](/jekyll.html).
 Available Plugins
 -----------------
 
-* [Tags](https://bitbucket.org/vlasovskikh/obraz/src/master/doc/_plugins/tags.py)
+* [Tags](https://bitbucket.org/vlasovskikh/obraz/src/public/doc/_plugins/tags.py)
   by [Andrey Vlasovskikh](http://pirx.ru/): Generate per-tag pages
 
 _Note:_ You can add your plugins to this list by sending a pull request to the

@@ -27,7 +27,7 @@ There are many static site generators. Why choose Obraz?
   Jekyll
 
 __ http://xkcd.com/353/
-__ https://bitbucket.org/vlasovskikh/obraz/src/master/obraz.py
+__ https://bitbucket.org/vlasovskikh/obraz/src/public/obraz.py
 __ http://obraz.pirx.ru/jekyll.html
 
 
