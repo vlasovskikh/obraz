@@ -5,13 +5,12 @@ import obraz
 
 
 @obraz.loader
-def load_capitals(filename, site):
+def load_capitals(path, site):
     test1_site = site.get('test1', {})
     capitals_filename = test1_site.get('capitals_filename', 'capitals.csv')
-    if filename != capitals_filename:
+    if path != capitals_filename:
         return None
-    path = os.path.join(site['source'], filename)
-    with open(path, 'r') as fd:
+    with open(os.path.join(site['source'], path), 'r') as fd:
         reader = csv.reader(fd)
         capitals = dict((country, capital) for capital, country in reader)
     return {
