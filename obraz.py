@@ -430,8 +430,8 @@ def load_plugins(basedir):
 
 def load_site(basedir):
     info('Loading source files...')
-    site = load_yaml_mapping(os.path.join(basedir, '_config.yml'))
-    site = merge(site, _default_site)
+    site = _default_site.copy()
+    site.update(load_yaml_mapping(os.path.join(basedir, '_config.yml')))
     site['time'] = datetime.utcnow()
     n = 0
     for i, abspath in enumerate(all_files(basedir)):
