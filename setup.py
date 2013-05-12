@@ -6,7 +6,7 @@ setup(
     version='0.3',
     packages=['test'],
     py_modules=['obraz'],
-    install_requires=['PyYAML', 'Jinja2', 'Markdown'],
+    install_requires=['PyYAML', 'Jinja2', 'Markdown', 'docopt'],
     entry_points={
         'console_scripts': [
             'obraz = obraz:main',
