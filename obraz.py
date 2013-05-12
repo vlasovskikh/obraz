@@ -23,8 +23,12 @@
 """Static site generator in a single Python file similar to Jekyll.
 
 Usage:
-    obraz SOURCE
+    obraz [options] SOURCE
     obraz -h|--help
+
+Options:
+    -h --help       Show help message.
+    -v --version    Show version.
 
 For documentation see <http://obraz.pirx.ru/>."""
 
