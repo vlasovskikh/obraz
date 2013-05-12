@@ -21,8 +21,8 @@ Consider a photo hosting example. By writing a custom plugin you can:
 Plugins are Python files that should be put into the `_plugins` directory of
 the site.
 
-Obraz plugins are incompatible with Jekyll plugins, see [compatiblity with
-Jekyll](/jekyll.html).
+Obraz plugins are incompatible with Jekyll plugins, see
+<a href="{{ site.baseurl }}/jekyll.html">compatiblity with Jekyll</a>.
 
 
 Available Plugins

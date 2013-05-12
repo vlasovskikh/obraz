@@ -8,13 +8,13 @@
  <author>
    <name>Andrey Vlasovskikh</name>
  </author>
- <link rel="self" href="{{ site.url }}/feed.atom"/>
- <link rel="alternate" href="{{ site.url }}/"/>
+ <link rel="self" href="{{ site.baseurl }}/feed.atom"/>
+ <link rel="alternate" href="{{ site.baseurl }}/"/>
  {% for post in site.posts | batch(5) | first %}
    <entry>
      <title>{{ post.title }}</title>
      <id>{{ site.url }}{{ post.id }}</id>
-     <link rel="alternate" href="{{ site.url }}{{ post.url }}"/>
+     <link rel="alternate" href="{{ site.baseurl }}{{ post.url }}"/>
      <updated>{{ post.date.isoformat() + 'Z' }}</updated>
      <content type="xhtml">
        <div xmlns="http://www.w3.org/1999/xhtml">{{ post.content }}</div>
