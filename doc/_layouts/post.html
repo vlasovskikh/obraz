@@ -6,10 +6,10 @@ layout: default
   <div class="meta">
     <div class="navigation">
       {% if page.previous %}
-        <a href="{{ page.previous.url }}">« Previous</a>
+        <a href="{{ site.baseurl }}{{ page.previous.url }}">« Previous</a>
       {% endif %}
       {% if page.next %}
-        <a href="{{ page.next.url }}">Next »</a>
+        <a href="{{ site.baseurl }}{{ page.next.url }}">Next »</a>
       {% endif %}
     </div>
     <div class="published">{{ page.date.strftime('%Y-%m-%d') }}</div>
@@ -20,7 +20,7 @@ layout: default
     {% if page.tags %}
       Tags:
       {% for tag in page.tags %}
-        <a href="/tags/{{ tag }}.html">{{ tag }}</a>
+        <a href="{{ site.baseurl }}/tags/{{ tag }}.html">{{ tag }}</a>
       {%- endfor -%}
       .
     {% endif %}

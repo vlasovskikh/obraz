@@ -4,11 +4,11 @@ title: Tagged Posts
 ---
 <section id="news" class="hfeed">
   {% set description = site.tags_plugin.descriptions[page.tag] %}
-  <h1>{{ description|default(page.tag)|title }} <a href="/tags/{{ page.tag }}.atom"><img src="/media/feed.png" alt="(feed)"/></a></h1>
+  <h1>{{ description|default(page.tag)|title }} <a href="{{ site.baseurl }}/tags/{{ page.tag }}.atom"><img src="{{ site.baseurl }}/media/feed.png" alt="(feed)"/></a></h1>
   {% for post in page.posts|sort(attribute='date', reverse=True) %}
     <section class="hentry">
       <div class="published">{{ post.date.strftime('%Y-%m-%d') }}</div>
-      <h4><a href="{{ post.url }}">{{ post.title }}</a></h4>
+      <h4><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h4>
     </section>
   {% endfor %}
 </section>
