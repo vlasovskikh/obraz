@@ -21,11 +21,12 @@ class ObrazTest(unittest.TestCase):
         site = os.path.join(self.datadir, name, 'site')
         tempdir = tempfile.mkdtemp()
         try:
-            basedir = os.path.join(tempdir, 'basedir')
-            shutil.copytree(src, basedir)
-            obraz.obraz(basedir)
-            destdir = os.path.join(basedir, '_site')
-            diff = subprocess.Popen(['diff', '-urw', site, destdir],
+            source = os.path.join(tempdir, 'source')
+            shutil.copytree(src, source)
+            os.chdir(source)
+            obraz.obraz(['build', '-q'])
+            destination = os.path.join(source, '_site')
+            diff = subprocess.Popen(['diff', '-urw', site, destination],
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
             stdout, stderr = diff.communicate()
