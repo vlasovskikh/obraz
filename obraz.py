@@ -52,7 +52,7 @@ from jinja2.exceptions import TemplateSyntaxError
 
 PAGE_ENCODING = 'UTF-8'
 
-_retcode = 0
+_return_code = 0
 _verbose = 0
 _loaders = []
 _processors = []
@@ -108,15 +108,15 @@ def fallback_loader(f):
     return f
 
 
-def all_files(basedir):
-    for path, dirs, files in os.walk(basedir):
+def all_files(path):
+    for path, dirs, files in os.walk(path):
         for filename in files:
             yield os.path.join(path, filename)
 
 
-def load_yaml_mapping(filename):
+def load_yaml_mapping(path):
     try:
-        with open(filename, 'rb') as fd:
+        with open(path, 'rb') as fd:
             mapping = yaml.load(fd)
             return mapping if mapping else {}
     except IOError as e:
@@ -143,18 +143,18 @@ def merge(x1, x2):
         raise ValueError("cannot merge '{0!r}' and '{1!r}'".format(x1, x2))
 
 
-def is_file_visible(filename, site):
+def is_file_visible(path, site):
     """Check file name visibility according to site settings."""
-    parts = filename.split(os.path.sep)
+    parts = path.split(os.path.sep)
     exclude = site.get('exclude', [])
     exclude_patterns = site.get('exclude_patterns', [])
-    if filename in site.get('include', []):
+    if path in site.get('include', []):
         return True
     elif any(re.match(pattern, part)
              for pattern in exclude_patterns
              for part in parts):
         return False
-    elif any(filename.startswith(path) for path in exclude):
+    elif any(path.startswith(s) for s in exclude):
         return False
     else:
         return True
@@ -206,8 +206,8 @@ def log(message):
     sys.stderr.flush()
 
 
-def file_suffix(filename):
-    _, ext = os.path.splitext(filename)
+def file_suffix(path):
+    _, ext = os.path.splitext(path)
     return ext
 
 
@@ -226,8 +226,8 @@ def report_exceptions(message):
     try:
         yield
     except Exception as e:
-        global _retcode
-        _retcode = 1
+        global _return_code
+        _return_code = 1
         error('Error when {0}: {1}'.format(message, e))
         error(traceback.format_exc())
 
@@ -239,28 +239,28 @@ def markdown_filter(s):
 
 
 @fallback_loader
-def load_file(basedir, filename, site):
-    if not is_file_visible(filename, site):
+def load_file(source, path, site):
+    if not is_file_visible(path, site):
         return None
     return {
-        'files': [{'url': path2url(filename), 'source': filename}],
+        'files': [{'url': path2url(path), 'source': path}],
     }
 
 
-def render_string(basedir, s, context, filename, offset=0):
-    includes = os.path.join(basedir, '_includes')
+def render_string(source, s, context, path, offset=0):
+    includes = os.path.join(source, '_includes')
     env = Environment(loader=FileSystemLoader(includes))
     env.filters.update(_template_filters)
     try:
         t = env.from_string(s)
         return t.render(**context)
     except TemplateSyntaxError as e:
-        raise Exception('{0}:{1}: {2}'.format(filename, e.lineno + offset,
+        raise Exception('{0}:{1}: {2}'.format(path, e.lineno + offset,
                                               e.message))
 
 
-def read_template(filename):
-    with open(filename, 'rb') as fd:
+def read_template(path):
+    with open(path, 'rb') as fd:
         if fd.read(3) != b'---':
             return None
         lines = []
@@ -283,27 +283,27 @@ def read_template(filename):
         return page
 
 
-def read_page(basedir, filename, url):
-    page = read_template(os.path.join(basedir, filename))
+def read_page(path, url):
+    page = read_template(path)
     if not page:
         return None
     page['url'] = url
-    f = _file_filters.get(file_suffix(filename))
+    f = _file_filters.get(file_suffix(path))
     if f:
         page['content'] = f(page['content'])
     return page
 
 
 @loader
-def load_page(basedir, filename, site):
-    if not is_file_visible(filename, site):
+def load_page(source, path, site):
+    if not is_file_visible(path, site):
         return None
-    name, suffix = os.path.splitext(filename)
+    name, suffix = os.path.splitext(path)
     if suffix in _file_filters:
         dst = '{0}.html'.format(name)
     else:
-        dst = filename
-    page = read_page(basedir, filename, path2url(dst))
+        dst = path
+    page = read_page(os.path.join(source, path), path2url(dst))
     if not page:
         return None
     return {
@@ -312,13 +312,13 @@ def load_page(basedir, filename, site):
 
 
 @loader
-def load_post(basedir, filename, site):
+def load_post(source, path, site):
     post_re = re.compile('(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-'
                          '(?P<title>.+)')
-    parts = filename.split(os.path.sep)
+    parts = path.split(os.path.sep)
     if '_posts' not in parts:
         return None
-    _, name = os.path.split(filename)
+    _, name = os.path.split(path)
     if not is_file_visible(name, site):
         return None
     name, suffix = os.path.splitext(name)
@@ -327,7 +327,7 @@ def load_post(basedir, filename, site):
         return None
     permalink = site.get('permalink', '/{year}/{month}/{day}/{title}.html')
     url = pathname2url(permalink.format(**m.groupdict()))
-    page = read_page(basedir, filename, url)
+    page = read_page(os.path.join(source, path), url)
     if not page:
         return None
     date_str = '{year}-{month}-{day}'.format(**m.groupdict())
@@ -340,11 +340,11 @@ def load_post(basedir, filename, site):
     }
 
 
-def render_layout(basedir, content, page, site):
+def render_layout(source, content, page, site):
     name = page.get('layout', 'nil')
     if name == 'nil':
         return content
-    layout_file = os.path.join(basedir, '_layouts', '{0}.html'.format(name))
+    layout_file = os.path.join(source, '_layouts', '{0}.html'.format(name))
     layout = read_template(layout_file)
     if not layout:
         raise Exception("cannot load template: '{0}'".format(layout_file))
@@ -359,25 +359,25 @@ def render_layout(basedir, content, page, site):
         'content': content,
     }
     offset = layout.get('_content_offset', 0)
-    content = render_string(basedir, layout['content'], context, layout_file,
+    content = render_string(source, layout['content'], context, layout_file,
                             offset)
-    return render_layout(basedir, content, layout, site)
+    return render_layout(source, content, layout, site)
 
 
-def render_page(basedir, page, site):
+def render_page(source, page, site):
     context = {
         'site': site,
         'page': page,
     }
     page_file = url2path(page['url'])
     offset = page.get('_content_offset', 0)
-    content = render_string(basedir, page['content'], context, page_file,
+    content = render_string(source, page['content'], context, page_file,
                             offset)
-    return render_layout(basedir, content, page, site)
+    return render_layout(source, content, page, site)
 
 
 @processor
-def process_posts(basedir, destdir, site):
+def process_posts(source, destination, site):
     """Sort and interlink posts."""
     posts = site.setdefault('posts', [])
     posts.sort(key=lambda post: post['date'], reverse=True)
@@ -390,33 +390,33 @@ def process_posts(basedir, destdir, site):
 
 
 @generator
-def generate_pages(basedir, destdir, site):
+def generate_pages(source, destination, site):
     """Generate pages with YAML front matter."""
     for page in site.get('pages', []):
         if not page.get('published', True):
             continue
         url = page['url']
         with report_exceptions('generating page {0}'.format(url)):
-            dst = os.path.join(destdir, url2path(url))
+            dst = os.path.join(destination, url2path(url))
             makedirs(os.path.dirname(dst))
             with open(dst, 'wb') as fd:
                 fd.truncate()
-                rendered = render_page(basedir, page, site)
+                rendered = render_page(source, page, site)
                 fd.write(rendered.encode(PAGE_ENCODING))
 
 
 @generator
-def generate_files(basedir, destdir, site):
+def generate_files(source, destination, site):
     """Copy static files."""
     for file_dict in site.get('files', []):
-        src = os.path.join(basedir, file_dict['source'])
-        dst = os.path.join(destdir, url2path(file_dict['url']))
+        src = os.path.join(source, file_dict['source'])
+        dst = os.path.join(destination, url2path(file_dict['url']))
         makedirs(os.path.dirname(dst))
         shutil.copy(src, dst)
 
 
-def load_plugins(basedir):
-    plugins = sorted(glob(os.path.join(basedir, '_plugins', '*.py')))
+def load_plugins(source):
+    plugins = sorted(glob(os.path.join(source, '_plugins', '*.py')))
     n = 0
     for plugin in plugins:
         with report_exceptions('loading {0}'.format(plugin)):
@@ -428,17 +428,17 @@ def load_plugins(basedir):
         info('Loaded {0} plugins'.format(n))
 
 
-def load_site(basedir):
+def load_site(source):
     info('Loading source files...')
     site = _default_site.copy()
-    site.update(load_yaml_mapping(os.path.join(basedir, '_config.yml')))
+    site.update(load_yaml_mapping(os.path.join(source, '_config.yml')))
     site['time'] = datetime.utcnow()
     n = 0
-    for i, abspath in enumerate(all_files(basedir)):
-        relpath = os.path.relpath(abspath, basedir)
+    for i, path in enumerate(all_files(source)):
+        relpath = os.path.relpath(path, source)
         with report_exceptions('loading {0}'.format(relpath)):
             for loader in _loaders:
-                data = loader(basedir, relpath, site)
+                data = loader(source, relpath, site)
                 if data:
                     n += 1
                     site = merge(site, data)
@@ -447,26 +447,26 @@ def load_site(basedir):
     return site
 
 
-def generate_site(basedir, site):
-    destdir = os.path.join(basedir, '_site')
-    makedirs(destdir)
-    for name in os.listdir(destdir):
-        remove(os.path.join(destdir, name))
+def generate_site(source, site):
+    destination = os.path.join(source, '_site')
+    makedirs(destination)
+    for name in os.listdir(destination):
+        remove(os.path.join(destination, name))
     for processor in _processors:
         msg = object_name(processor)
         info('{0}...'.format(msg))
         with report_exceptions(msg):
-            processor(basedir, destdir, site)
-    if _retcode == 0:
+            processor(source, destination, site)
+    if _return_code == 0:
         info('Site generated successfully')
     else:
         info('Generation failed, check output for details')
 
 
-def obraz(basedir):
-    load_plugins(basedir)
-    site = load_site(basedir)
-    generate_site(basedir, site)
+def obraz(source):
+    load_plugins(source)
+    site = load_site(source)
+    generate_site(source, site)
 
 
 def main():
@@ -477,7 +477,7 @@ def main():
         info(__doc__)
         sys.exit(1)
     obraz(args[0])
-    sys.exit(_retcode)
+    sys.exit(_return_code)
 
 
 if __name__ == '__main__':

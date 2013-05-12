@@ -64,7 +64,7 @@ Extension Points
 
     Register a site source content loader.
 
-    Source content loaders transform a filename from the site base directory
+    Source content loaders transform a file path from the site base directory
     into a dictionary that will be merged by Obraz into the `site` dictionary.
     If the loader wants to skip a file and pass it to other loaders, then it
     should return `None`. Loaders are not allowed to modify their `site`
@@ -74,7 +74,7 @@ Extension Points
     to parse and make available as a part of the site dictionary instead of
     treating them like pages with YAML front matter or regular static files.
 
-    A site content loader is a fuction of type `(basedir: str, filename: str,
+    A site content loader is a fuction of type `(source: str, path: str,
     site: dict) -> dict`.
 
     Example:
@@ -84,14 +84,13 @@ Extension Points
         import obraz
 
         @obraz.loader
-        def load_checkins(basedir, filename, site):
+        def load_checkins(source, path, site):
             """Loading check-ins from a KML file."""
-            if not obraz.is_file_visible(filename, site):
+            if not obraz.is_file_visible(path, site):
                 return None
-            if not filename.endswith('.kml'):
+            if not path.endswith('.kml'):
                 return None
-            path = os.path.join(basedir, filename)
-            root = etree.parse(path)
+            root = etree.parse(os.path.join(source, path))
             return {
                 'checkins': root.findall('Folder/Placemark'),
             }
@@ -103,8 +102,8 @@ Extension Points
     Content processors are useful when you need to extend or rearrange already
     existing site data.
 
-    A site content processor is a fuction of type `(basedir: str, destdir: str,
-    site: dict) -> None`.
+    A site content processor is a fuction of type `(source: str,
+    destination: str, site: dict) -> None`.
 
     Example:
 
@@ -124,13 +123,13 @@ Extension Points
 
 
         @obraz.processor
-        def process_exif(basedir, destdir, site):
+        def process_exif(source, destination, site):
             """Processing EXIF metadata."""
             for file in site.get('files', []):
-                path = os.path.join(basedir, file['source'])
+                path = os.path.join(source, file['source'])
                 if not path.endswith('.jpg'):
                     continue
-                exif = read_exif(filename)
+                exif = read_exif(path)
                 if exif:
                     file['exif'] = exif
 
@@ -141,8 +140,8 @@ Extension Points
     Generators are useful when you need to create additional generated files
     you need at your site, e.g. tag pages or image thumbnails.
 
-    A site content generator is a fuction of type `(basedir: str, destdir: str,
-    site: dict) -> None`.
+    A site content generator is a fuction of type `(source: str,
+    destination: str, site: dict) -> None`.
 
         import os
         import obraz
@@ -151,17 +150,17 @@ Extension Points
         size = 300
 
         @obraz.generator
-        def generate_thumbnails(basedir, destdir, site):
+        def generate_thumbnails(source, destination, site):
             """Generating thumbnails."""
             for file in site.get('files', []):
-                filename = file['source']
-                if not filename.endswith('.jpg'):
+                path = file['source']
+                if not path.endswith('.jpg'):
                     return None
-                img = Image.open(os.path.join(basedir, filename))
+                img = Image.open(os.path.join(source, path))
                 img.thumbnail((size, size), Image.ANTIALIAS)
-                name, ext = os.path.splitext(filename)
-                new_filename = '{0}-{1}{2}'.format(name, size, ext)
-                img.save(os.path.join(destdir, new_filename), 'JPEG')
+                name, ext = os.path.splitext(path)
+                new_path = '{0}-{1}{2}'.format(name, size, ext)
+                img.save(os.path.join(destination, new_path), 'JPEG')
 
 
 * **`@obraz.file_filter(extensions)`**

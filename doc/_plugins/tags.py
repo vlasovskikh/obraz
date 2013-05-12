@@ -55,7 +55,7 @@ default_page_info = {
 
 
 @obraz.processor
-def process_tags(basedir, destdir, site):
+def process_tags(source, destination, site):
     """Processing tags."""
     pages = site.get('pages', [])
     settings = site.get('tags_plugin', {})
