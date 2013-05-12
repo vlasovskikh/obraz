@@ -471,6 +471,8 @@ def obraz(source):
     site = _default_site.copy()
     site['source'] = source
     site['destination'] = os.path.join(source, '_site')
+    info('Source: {0}'.format(site['source']))
+    info('Destination: {0}'.format(site['destination']))
     load_plugins(source)
     site = load_site(site)
     generate_site(site)
