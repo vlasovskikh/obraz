@@ -473,6 +473,12 @@ def generate_site(site):
         info('Generation failed, check output for details')
 
 
+def build(site):
+    load_plugins(site['source'])
+    site = load_site(site)
+    generate_site(site)
+
+
 def obraz(argv):
     opts = docopt(__doc__, argv=argv, version='0.3')
     global _quiet
@@ -490,9 +496,8 @@ def obraz(argv):
     info('Source: {0}'.format(os.path.abspath(site['source'])))
     info('Destination: {0}'.format(os.path.abspath(site['destination'])))
 
-    load_plugins(site['source'])
-    site = load_site(site)
-    generate_site(site)
+    if opts['build']:
+        build(site)
 
 
 if __name__ == '__main__':
