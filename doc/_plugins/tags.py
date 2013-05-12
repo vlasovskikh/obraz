@@ -45,6 +45,7 @@ Requirements:
 * Obraz == 0.4.x
 """
 
+from __future__ import unicode_literals
 import obraz
 
 __version__ = '0.1'
@@ -55,7 +56,7 @@ default_page_info = {
 
 
 @obraz.processor
-def process_tags(source, destination, site):
+def process_tags(site):
     """Processing tags."""
     pages = site.get('pages', [])
     settings = site.get('tags_plugin', {})

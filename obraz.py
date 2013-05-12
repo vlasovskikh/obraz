@@ -60,7 +60,10 @@ _processors = []
 _file_filters = {}
 _template_filters = {}
 _default_site = {
+    'source': '.',
+    'destination': '_site',
     'include': ['.htaccess'],
+    'exclude': [],
     'exclude_patterns': [
         r'^[\.#_].*',
         r'.*~$',
@@ -240,7 +243,7 @@ def markdown_filter(s):
 
 
 @fallback_loader
-def load_file(source, path, site):
+def load_file(path, site):
     if not is_file_visible(path, site):
         return None
     return {
@@ -296,7 +299,7 @@ def read_page(path, url):
 
 
 @loader
-def load_page(source, path, site):
+def load_page(path, site):
     if not is_file_visible(path, site):
         return None
     name, suffix = os.path.splitext(path)
@@ -304,7 +307,7 @@ def load_page(source, path, site):
         dst = '{0}.html'.format(name)
     else:
         dst = path
-    page = read_page(os.path.join(source, path), path2url(dst))
+    page = read_page(os.path.join(site['source'], path), path2url(dst))
     if not page:
         return None
     return {
@@ -313,7 +316,7 @@ def load_page(source, path, site):
 
 
 @loader
-def load_post(source, path, site):
+def load_post(path, site):
     post_re = re.compile('(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-'
                          '(?P<title>.+)')
     parts = path.split(os.path.sep)
@@ -328,7 +331,7 @@ def load_post(source, path, site):
         return None
     permalink = site.get('permalink', '/{year}/{month}/{day}/{title}.html')
     url = pathname2url(permalink.format(**m.groupdict()))
-    page = read_page(os.path.join(source, path), url)
+    page = read_page(os.path.join(site['source'], path), url)
     if not page:
         return None
     date_str = '{year}-{month}-{day}'.format(**m.groupdict())
@@ -378,7 +381,7 @@ def render_page(source, page, site):
 
 
 @processor
-def process_posts(source, destination, site):
+def process_posts(site):
     """Sort and interlink posts."""
     posts = site.setdefault('posts', [])
     posts.sort(key=lambda post: post['date'], reverse=True)
@@ -391,27 +394,27 @@ def process_posts(source, destination, site):
 
 
 @generator
-def generate_pages(source, destination, site):
+def generate_pages(site):
     """Generate pages with YAML front matter."""
     for page in site.get('pages', []):
         if not page.get('published', True):
             continue
         url = page['url']
         with report_exceptions('generating page {0}'.format(url)):
-            dst = os.path.join(destination, url2path(url))
+            dst = os.path.join(site['destination'], url2path(url))
             makedirs(os.path.dirname(dst))
             with open(dst, 'wb') as fd:
                 fd.truncate()
-                rendered = render_page(source, page, site)
+                rendered = render_page(site['source'], page, site)
                 fd.write(rendered.encode(PAGE_ENCODING))
 
 
 @generator
-def generate_files(source, destination, site):
+def generate_files(site):
     """Copy static files."""
     for file_dict in site.get('files', []):
-        src = os.path.join(source, file_dict['source'])
-        dst = os.path.join(destination, url2path(file_dict['url']))
+        src = os.path.join(site['source'], file_dict['source'])
+        dst = os.path.join(site['destination'], url2path(file_dict['url']))
         makedirs(os.path.dirname(dst))
         shutil.copy(src, dst)
 
@@ -429,9 +432,9 @@ def load_plugins(source):
         info('Loaded {0} plugins'.format(n))
 
 
-def load_site(source):
+def load_site(site):
+    source = site['source']
     info('Loading source files...')
-    site = _default_site.copy()
     site.update(load_yaml_mapping(os.path.join(source, '_config.yml')))
     site['time'] = datetime.utcnow()
     n = 0
@@ -439,7 +442,7 @@ def load_site(source):
         relpath = os.path.relpath(path, source)
         with report_exceptions('loading {0}'.format(relpath)):
             for loader in _loaders:
-                data = loader(source, relpath, site)
+                data = loader(relpath, site)
                 if data:
                     n += 1
                     site = merge(site, data)
@@ -448,8 +451,8 @@ def load_site(source):
     return site
 
 
-def generate_site(source, site):
-    destination = os.path.join(source, '_site')
+def generate_site(site):
+    destination = site['destination']
     makedirs(destination)
     for name in os.listdir(destination):
         remove(os.path.join(destination, name))
@@ -457,7 +460,7 @@ def generate_site(source, site):
         msg = object_name(processor)
         info('{0}...'.format(msg))
         with report_exceptions(msg):
-            processor(source, destination, site)
+            processor(site)
     if _return_code == 0:
         info('Site generated successfully')
     else:
@@ -465,9 +468,12 @@ def generate_site(source, site):
 
 
 def obraz(source):
+    site = _default_site.copy()
+    site['source'] = source
+    site['destination'] = os.path.join(source, '_site')
     load_plugins(source)
-    site = load_site(source)
-    generate_site(source, site)
+    site = load_site(site)
+    generate_site(site)
 
 
 def main():
