@@ -23,8 +23,8 @@
 """Static site generator in a single Python file similar to Jekyll.
 
 Usage:
-
-    obraz [-h|--help] /path/to/site
+    obraz SOURCE
+    obraz -h|--help
 
 For documentation see <http://obraz.pirx.ru/>."""
 
@@ -49,6 +49,7 @@ import yaml
 from markdown import markdown
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateSyntaxError
+from docopt import docopt
 
 
 PAGE_ENCODING = 'UTF-8'
@@ -481,11 +482,8 @@ def obraz(source):
 def main():
     global _verbose
     _verbose = 1
-    args = sys.argv[1:]
-    if '-h' in args or '--help' in args or not args:
-        info(__doc__)
-        sys.exit(1)
-    obraz(args[0])
+    opts = docopt(__doc__, argv=sys.argv[1:], version='0.3')
+    obraz(opts['SOURCE'])
     sys.exit(_return_code)
 
 
