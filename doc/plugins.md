@@ -1,19 +1,15 @@
 ---
 layout: default
-title: Obraz Plugin System
+title: Obraz Plugins
 ---
 
 {{ page.title }}
 ================
 
 _The Obraz plugin system is still considered experimental and may be changed
-significantly in the future versions._
+in the future versions._
 
-
-Plugins
--------
-
-Plugins allow to extend the site generation process via user-defined processing
+Plugins allow extending the site generation process via user-defined processing
 functions.
 
 Consider a photo hosting example. By writing a custom plugin you can:
@@ -25,6 +21,9 @@ Consider a photo hosting example. By writing a custom plugin you can:
 Plugins are Python files that should be put into the `_plugins` directory of
 the site.
 
+Obraz plugins are incompatible with Jekyll plugins, see [compatiblity with
+Jekyll](/jekyll.html).
+
 
 Available Plugins
 -----------------
@@ -33,7 +32,7 @@ Available Plugins
   by [Andrey Vlasovskikh](http://pirx.ru/): Generate per-tag pages
 
 _Note:_ You can add your plugins to this list by sending a pull request to the
-[Obraz repository][3] at Bitbucket.
+[Obraz repository][3] on Bitbucket.
 
 
 Site Model

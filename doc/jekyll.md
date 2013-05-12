@@ -44,8 +44,7 @@ Different
 
 * Plugin system
 
-    Obraz has an experimental [plugin system][5]. It may be changed
-    significantly in the future releases.
+    Obraz has its own [plugin system][5] incompatible with Jekyll.
 
 
 Not Implemented Yet
