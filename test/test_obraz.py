@@ -50,3 +50,7 @@ class ObrazTest(unittest.TestCase):
 
     def test_plugins(self):
         self.do('plugins')
+
+    def test_filters_after_rendering(self):
+        """Issue #9."""
+        self.do('filters_after_rendering')

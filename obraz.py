@@ -309,17 +309,6 @@ def read_template(path):
         return page
 
 
-def read_page(path, url):
-    page = read_template(path)
-    if not page:
-        return None
-    page['url'] = url
-    f = _file_filters.get(file_suffix(path))
-    if f:
-        page['content'] = f(page['content'])
-    return page
-
-
 @loader
 def load_page(path, site):
     if not is_file_visible(path, site):
@@ -329,9 +318,10 @@ def load_page(path, site):
         dst = '{0}.html'.format(name)
     else:
         dst = path
-    page = read_page(os.path.join(site['source'], path), path2url(dst))
+    page = read_template(os.path.join(site['source'], path))
     if not page:
         return None
+    page.update({'url': path2url(dst), 'source': path})
     return {
         'pages': [page]
     }
@@ -353,9 +343,10 @@ def load_post(path, site):
         return None
     permalink = site.get('permalink', '/{year}/{month}/{day}/{title}.html')
     url = pathname2url(permalink.format(**m.groupdict()))
-    page = read_page(os.path.join(site['source'], path), url)
+    page = read_template(os.path.join(site['source'], path))
     if not page:
         return None
+    page.update({'url': url, 'source': path})
     date_str = '{year}-{month}-{day}'.format(**m.groupdict())
     page.setdefault('date', datetime.strptime(date_str, '%Y-%m-%d'))
     page['id'] = '/{year}/{month}/{day}/{title}'.format(**m.groupdict())
@@ -399,6 +390,9 @@ def render_page(source, page, site):
     offset = page.get('_content_offset', 0)
     content = render_string(source, page['content'], context, page_file,
                             offset)
+    f = _file_filters.get(file_suffix(page['source']))
+    if f:
+        content = f(content)
     return render_layout(source, content, page, site)
 
 
