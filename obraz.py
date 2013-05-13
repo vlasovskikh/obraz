@@ -351,7 +351,6 @@ def load_post(path, site):
     page.setdefault('date', datetime.strptime(date_str, '%Y-%m-%d'))
     page['id'] = '/{year}/{month}/{day}/{title}'.format(**m.groupdict())
     return {
-        'pages': [page],
         'posts': [page],
         'tags': dict((tag, [page]) for tag in page.get('tags', [])),
     }
@@ -393,6 +392,7 @@ def render_page(source, page, site):
     f = _file_filters.get(file_suffix(page.get('path', '')))
     if f:
         content = f(content)
+    page['content'] = content
     return render_layout(source, content, page, site)
 
 
@@ -409,20 +409,26 @@ def process_posts(site):
             post['previous'] = posts[i - 1]
 
 
+def generate_page(page, site):
+    if not page.get('published', True):
+        return
+    url = page['url']
+    with report_exceptions('generating page {0}'.format(url)):
+        dst = os.path.join(site['destination'], url2path(url))
+        make_dirs(os.path.dirname(dst))
+        with open(dst, 'wb') as fd:
+            fd.truncate()
+            rendered = render_page(site['source'], page, site)
+            fd.write(rendered.encode(PAGE_ENCODING))
+
+
 @generator
 def generate_pages(site):
     """Generate pages with YAML front matter."""
+    for post in site.get('posts', []):
+        generate_page(post, site)
     for page in site.get('pages', []):
-        if not page.get('published', True):
-            continue
-        url = page['url']
-        with report_exceptions('generating page {0}'.format(url)):
-            dst = os.path.join(site['destination'], url2path(url))
-            make_dirs(os.path.dirname(dst))
-            with open(dst, 'wb') as fd:
-                fd.truncate()
-                rendered = render_page(site['source'], page, site)
-                fd.write(rendered.encode(PAGE_ENCODING))
+        generate_page(page, site)
 
 
 @generator
