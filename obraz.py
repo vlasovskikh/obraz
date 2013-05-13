@@ -199,7 +199,7 @@ def url2path(url):
     return url2pathname(url).lstrip(os.path.sep)
 
 
-def makedirs(path):
+def make_dirs(path):
     try:
         os.makedirs(path)
     except OSError as e:
@@ -424,7 +424,7 @@ def generate_pages(site):
         url = page['url']
         with report_exceptions('generating page {0}'.format(url)):
             dst = os.path.join(site['destination'], url2path(url))
-            makedirs(os.path.dirname(dst))
+            make_dirs(os.path.dirname(dst))
             with open(dst, 'wb') as fd:
                 fd.truncate()
                 rendered = render_page(site['source'], page, site)
@@ -437,7 +437,7 @@ def generate_files(site):
     for file_dict in site.get('files', []):
         src = os.path.join(site['source'], file_dict['source'])
         dst = os.path.join(site['destination'], url2path(file_dict['url']))
-        makedirs(os.path.dirname(dst))
+        make_dirs(os.path.dirname(dst))
         shutil.copy(src, dst)
 
 
@@ -459,10 +459,10 @@ def load_site(site):
     info('Loading source files...')
     n = 0
     for i, path in enumerate(all_files(source)):
-        relpath = os.path.relpath(path, source)
-        with report_exceptions('loading {0}'.format(relpath)):
+        rel_path = os.path.relpath(path, source)
+        with report_exceptions('loading {0}'.format(rel_path)):
             for loader in _loaders:
-                data = loader(relpath, site)
+                data = loader(rel_path, site)
                 if data:
                     n += 1
                     site = merge(site, data)
@@ -473,7 +473,7 @@ def load_site(site):
 
 def generate_site(site):
     destination = site['destination']
-    makedirs(destination)
+    make_dirs(destination)
     for name in os.listdir(destination):
         remove(os.path.join(destination, name))
     for processor in _processors:
