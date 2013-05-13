@@ -23,9 +23,12 @@
 """Static site generator in a single Python file similar to Jekyll.
 
 Usage:
-    obraz build [options]
-    obraz serve [options]
+    obraz (build|serve) [options]
     obraz -h|--help
+
+Commands:
+    build                   Build your site.
+    serve                   Serve your site locally.
 
 Options:
     -s --source=DIR         Source directory.
