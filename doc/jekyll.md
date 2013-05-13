@@ -43,30 +43,19 @@ Different
 Not Implemented Yet
 -------------------
 
-* Categories of posts
-
-    Categories of posts in template data (`site.categories`) and in permalinks
-    are not supported.
-
-* Posts paginator
-
-    The posts paginator object in template data (`paginator`) is not supported.
-
-* Related posts
-
-    Related posts in template data (`site.related_posts`) are not supported.
-
-* Page excerpt
-
-    Page excerpt in template data (`page.excerpt`) is not supported.
-
-* Page path
-
-    The path to the raw page in template data (`page.path`) is not supported.
-
 * New site command
 
     The `new` command is not supported.
+
+* Textile formatting
+
+    Textile markup language is not supported.
+
+* Some template data variables
+
+    The following template data variables are not supported: `paginator`,
+    `site.related_posts`, `site.categories`,  `page.excerpt`, `page.categories`,
+    `page.path`.
 
 * Some command-line flags
 
@@ -77,10 +66,6 @@ Not Implemented Yet
 
     The following `_config.yml` options are not supported: `safe`, `timezone`,
     `future`, `lsi`, `limit_posts`.
-
-* Textile formatting
-
-    Textile markup language is not supported.
 
 
 Not in Obraz
