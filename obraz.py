@@ -269,7 +269,7 @@ def load_file(path, site):
     if not is_file_visible(path, site):
         return None
     return {
-        'files': [{'url': path2url(path), 'source': path}],
+        'files': [{'url': path2url(path), 'path': path}],
     }
 
 
@@ -321,7 +321,7 @@ def load_page(path, site):
     page = read_template(os.path.join(site['source'], path))
     if not page:
         return None
-    page.update({'url': path2url(dst), 'source': path})
+    page.update({'url': path2url(dst), 'path': path})
     return {
         'pages': [page]
     }
@@ -346,7 +346,7 @@ def load_post(path, site):
     page = read_template(os.path.join(site['source'], path))
     if not page:
         return None
-    page.update({'url': url, 'source': path})
+    page.update({'url': url, 'path': path})
     date_str = '{year}-{month}-{day}'.format(**m.groupdict())
     page.setdefault('date', datetime.strptime(date_str, '%Y-%m-%d'))
     page['id'] = '/{year}/{month}/{day}/{title}'.format(**m.groupdict())
@@ -390,7 +390,7 @@ def render_page(source, page, site):
     offset = page.get('_content_offset', 0)
     content = render_string(source, page['content'], context, page_file,
                             offset)
-    f = _file_filters.get(file_suffix(page['source']))
+    f = _file_filters.get(file_suffix(page.get('path', '')))
     if f:
         content = f(content)
     return render_layout(source, content, page, site)
@@ -429,7 +429,7 @@ def generate_pages(site):
 def generate_files(site):
     """Copy static files."""
     for file_dict in site.get('files', []):
-        src = os.path.join(site['source'], file_dict['source'])
+        src = os.path.join(site['source'], file_dict['path'])
         dst = os.path.join(site['destination'], url2path(file_dict['url']))
         make_dirs(os.path.dirname(dst))
         shutil.copy(src, dst)

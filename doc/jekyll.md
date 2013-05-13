@@ -54,8 +54,7 @@ Not Implemented Yet
 * Some template data variables
 
     The following template data variables are not supported: `paginator`,
-    `site.related_posts`, `site.categories`,  `page.excerpt`, `page.categories`,
-    `page.path`.
+    `site.related_posts`, `site.categories`,  `page.excerpt`, `page.categories`.
 
 * Some command-line flags
 
