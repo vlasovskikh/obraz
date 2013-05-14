@@ -39,6 +39,7 @@ Options:
     --baseurl=URL           Serve the website from the given base URL.
 
     -q --quiet              Be quiet.
+    -t --trace              Display traceback when an error occurs.
     -v --version            Show version.
     -h --help               Show help message.
 
@@ -52,7 +53,6 @@ import shutil
 import errno
 from glob import glob
 from datetime import datetime
-from contextlib import contextmanager
 import traceback
 
 try:
@@ -66,13 +66,11 @@ except ImportError:
 import yaml
 from markdown import markdown
 from jinja2 import Environment, FileSystemLoader
-from jinja2.exceptions import TemplateSyntaxError
 from docopt import docopt
 
 
 PAGE_ENCODING = 'UTF-8'
 
-_return_code = 0
 _quiet = False
 _loaders = []
 _processors = []
@@ -96,18 +94,22 @@ _default_site = {
 
 def file_filter(extensions):
     """Register a page content filter for file extensions."""
+
     def wrapper(f):
         for ext in extensions:
             _file_filters[ext] = f
         return f
+
     return wrapper
 
 
 def template_filter(name):
     """Register a template filter."""
+
     def wrapper(f):
         _template_filters[name] = f
         return f
+
     return wrapper
 
 
@@ -166,7 +168,7 @@ def merge(x1, x2):
     elif x1 == x2:
         return x1
     else:
-        raise ValueError("cannot merge '{0!r}' and '{1!r}'".format(x1, x2))
+        raise ValueError("Cannot merge '{0!r}' and '{1!r}'".format(x1, x2))
 
 
 def is_file_visible(path, site):
@@ -247,17 +249,6 @@ def object_name(f):
     return f.__name__
 
 
-@contextmanager
-def report_exceptions(message):
-    try:
-        yield
-    except Exception as e:
-        global _return_code
-        _return_code = 1
-        error('Error when {0}: {1}'.format(message, e))
-        error(traceback.format_exc())
-
-
 @template_filter('markdownify')
 @file_filter(['.md', '.markdown'])
 def markdown_filter(s):
@@ -273,16 +264,12 @@ def load_file(path, site):
     }
 
 
-def render_string(source, s, context, path, offset=0):
+def render_string(source, s, context):
     includes = os.path.join(source, '_includes')
     env = Environment(loader=FileSystemLoader(includes))
     env.filters.update(_template_filters)
-    try:
-        t = env.from_string(s)
-        return t.render(**context)
-    except TemplateSyntaxError as e:
-        raise Exception('{0}:{1}: {2}'.format(path, e.lineno + offset,
-                                              e.message))
+    t = env.from_string(s)
+    return t.render(**context)
 
 
 def read_template(path):
@@ -305,7 +292,6 @@ def read_template(path):
             page = {}
         content = fd.read().decode(PAGE_ENCODING)
         page['content'] = content
-        page['_content_offset'] = offset
         return page
 
 
@@ -363,20 +349,17 @@ def render_layout(source, content, page, site):
     layout_file = os.path.join(source, '_layouts', '{0}.html'.format(name))
     layout = read_template(layout_file)
     if not layout:
-        raise Exception("cannot load template: '{0}'".format(layout_file))
+        raise Exception("Cannot load template: '{0}'".format(layout_file))
     page_copy = page.copy()
     page_copy.pop('layout', None)
     page_copy.pop('content', None)
-    page_copy.pop('_content_offset', None)
     layout.update(page_copy)
     context = {
         'site': site,
         'page': layout,
         'content': content,
     }
-    offset = layout.get('_content_offset', 0)
-    content = render_string(source, layout['content'], context, layout_file,
-                            offset)
+    content = render_string(source, layout['content'], context)
     return render_layout(source, content, layout, site)
 
 
@@ -385,10 +368,7 @@ def render_page(source, page, site):
         'site': site,
         'page': page,
     }
-    page_file = url2path(page['url'])
-    offset = page.get('_content_offset', 0)
-    content = render_string(source, page['content'], context, page_file,
-                            offset)
+    content = render_string(source, page['content'], context)
     f = _file_filters.get(file_suffix(page.get('path', '')))
     if f:
         content = f(content)
@@ -413,13 +393,16 @@ def generate_page(page, site):
     if not page.get('published', True):
         return
     url = page['url']
-    with report_exceptions('generating page {0}'.format(url)):
-        dst = os.path.join(site['destination'], url2path(url))
-        make_dirs(os.path.dirname(dst))
-        with open(dst, 'wb') as fd:
-            fd.truncate()
+    dst = os.path.join(site['destination'], url2path(url))
+    make_dirs(os.path.dirname(dst))
+    with open(dst, 'wb') as fd:
+        fd.truncate()
+        try:
             rendered = render_page(site['source'], page, site)
-            fd.write(rendered.encode(PAGE_ENCODING))
+        except Exception as e:
+            msg = "Cannot render '{0}': {1}".format(page.get('path'), e)
+            raise Exception(msg)
+        fd.write(rendered.encode(PAGE_ENCODING))
 
 
 @generator
@@ -445,11 +428,10 @@ def load_plugins(source):
     plugins = sorted(glob(os.path.join(source, '_plugins', '*.py')))
     n = 0
     for plugin in plugins:
-        with report_exceptions('loading {0}'.format(plugin)):
-            with open(plugin, 'rb') as fd:
-                code = fd.read()
-                exec(code, {})
-            n += 1
+        with open(plugin, 'rb') as fd:
+            code = fd.read()
+            exec(compile(code, plugin, 'exec'), {})
+        n += 1
     if n > 0:
         info('Loaded {0} plugins'.format(n))
 
@@ -460,13 +442,12 @@ def load_site(site):
     n = 0
     for i, path in enumerate(all_files(source)):
         rel_path = os.path.relpath(path, source)
-        with report_exceptions('loading {0}'.format(rel_path)):
-            for loader in _loaders:
-                data = loader(rel_path, site)
-                if data:
-                    n += 1
-                    site = merge(site, data)
-                    break
+        for loader in _loaders:
+            data = loader(rel_path, site)
+            if data:
+                n += 1
+                site = merge(site, data)
+                break
     info('Loaded {0} files'.format(n))
     return site
 
@@ -479,12 +460,8 @@ def generate_site(site):
     for processor in _processors:
         msg = object_name(processor)
         info('{0}...'.format(msg))
-        with report_exceptions(msg):
-            processor(site)
-    if _return_code == 0:
-        info('Site generated successfully')
-    else:
-        info('Generation failed, check output for details')
+        processor(site)
+    info('Site generated successfully')
 
 
 def build(site):
@@ -497,8 +474,6 @@ def build(site):
 
 def serve(site):
     build(site)
-    if _return_code > 0:
-        sys.exit(_return_code)
 
     host = site['host']
     port = int(site['port'])
@@ -525,25 +500,29 @@ def obraz(argv):
     global _quiet
     _quiet = opts['--quiet']
 
-    site = _default_site.copy()
-    source = opts['--source'] if opts['--source'] else './'
-    config = os.path.join(source, '_config.yml')
-    site.update(load_yaml_mapping(config))
-    site['time'] = datetime.utcnow()
-    for k, v in opts.items():
-        if k.startswith('--') and v:
-            site[k[2:]] = v
+    try:
+        site = _default_site.copy()
+        source = opts['--source'] if opts['--source'] else './'
+        config = os.path.join(source, '_config.yml')
+        site.update(load_yaml_mapping(config))
+        site['time'] = datetime.utcnow()
+        for k, v in opts.items():
+            if k.startswith('--') and v:
+                site[k[2:]] = v
 
-    if opts['build']:
-        build(site)
-    elif opts['serve']:
-        serve(site)
+        if opts['build']:
+            build(site)
+        elif opts['serve']:
+            serve(site)
+    except KeyboardInterrupt:
+        info('Interrupted')
+    except Exception as e:
+        if opts['--trace']:
+            traceback.print_tb(sys.exc_traceback)
+        error('Error: {0}'.format(e))
+        sys.exit(1)
 
 
 if __name__ == '__main__':
     sys.modules['obraz'] = sys.modules[__name__]
-    try:
-        obraz(sys.argv[1:])
-    except KeyboardInterrupt:
-        info('Interrupted')
-    sys.exit(_return_code)
+    obraz(sys.argv[1:])
