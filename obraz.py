@@ -193,12 +193,12 @@ def changed_files(source, destination, poll_interval=1):
         sleep(poll_interval)
 
 
-def is_file_visible(path, site):
+def is_file_visible(path, config):
     """Check file name visibility according to site settings."""
     parts = path.split(os.path.sep)
-    exclude = site.get('exclude', [])
-    exclude_patterns = site.get('exclude_patterns', [])
-    if path in site.get('include', []):
+    exclude = config.get('exclude', [])
+    exclude_patterns = config.get('exclude_patterns', [])
+    if path in config.get('include', []):
         return True
     elif any(re.match(pattern, part)
              for pattern in exclude_patterns
@@ -280,8 +280,8 @@ def markdown_filter(s):
 
 
 @fallback_loader
-def load_file(path, site):
-    if not is_file_visible(path, site):
+def load_file(path, config):
+    if not is_file_visible(path, config):
         return None
     return {
         'files': [{'url': path2url(path), 'path': path}],
@@ -321,15 +321,15 @@ def read_template(path):
 
 
 @loader
-def load_page(path, site):
-    if not is_file_visible(path, site):
+def load_page(path, config):
+    if not is_file_visible(path, config):
         return None
     name, suffix = os.path.splitext(path)
     if suffix in _file_filters:
         dst = '{0}.html'.format(name)
     else:
         dst = path
-    page = read_template(os.path.join(site['source'], path))
+    page = read_template(os.path.join(config['source'], path))
     if not page:
         return None
     page.update({'url': path2url(dst), 'path': path})
@@ -339,22 +339,22 @@ def load_page(path, site):
 
 
 @loader
-def load_post(path, site):
+def load_post(path, config):
     post_re = re.compile('(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-'
                          '(?P<title>.+)')
     parts = path.split(os.path.sep)
     if '_posts' not in parts:
         return None
     _, name = os.path.split(path)
-    if not is_file_visible(name, site):
+    if not is_file_visible(name, config):
         return None
     name, suffix = os.path.splitext(name)
     m = post_re.match(name)
     if not m:
         return None
-    permalink = site.get('permalink', '/{year}/{month}/{day}/{title}.html')
+    permalink = config.get('permalink', '/{year}/{month}/{day}/{title}.html')
     url = pathname2url(permalink.format(**m.groupdict()))
-    page = read_template(os.path.join(site['source'], path))
+    page = read_template(os.path.join(config['source'], path))
     if not page:
         return None
     page.update({'url': url, 'path': path})
