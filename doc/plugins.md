@@ -67,14 +67,14 @@ Extension Points
     Source content loaders transform a file path from the site source directory
     into a dictionary that will be merged by Obraz into the `site` dictionary.
     If the loader wants to skip a file and pass it to other loaders, then it
-    should return `None`. Loaders are not allowed to modify their `site`
+    should return `None`. Loaders are not allowed to modify their `config`
     parameter.
 
     Loaders are useful when you have source files in some format that you want
     to parse and make available as a part of the site dictionary instead of
     treating them like pages with YAML front matter or regular static files.
 
-    A site content loader is a fuction of type `(path: str, site: dict) ->
+    A site content loader is a fuction of type `(path: str, config: dict) ->
     dict`.
 
     Example:
@@ -84,13 +84,13 @@ Extension Points
         import obraz
 
         @obraz.loader
-        def load_checkins(path, site):
+        def load_checkins(path, config):
             """Loading check-ins from a KML file."""
-            if not obraz.is_file_visible(path, site):
+            if not obraz.is_file_visible(path, config):
                 return None
             if not path.endswith('.kml'):
                 return None
-            root = etree.parse(os.path.join(site['source'], path))
+            root = etree.parse(os.path.join(config['source'], path))
             return {
                 'checkins': root.findall('Folder/Placemark'),
             }
