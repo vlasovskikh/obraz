@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Static site generator in a single Python file similar to Jekyll.
+"""Static site generator in a single Python file mostly compatible with Jekyll.
 
 Usage:
     obraz (build|serve) [options]

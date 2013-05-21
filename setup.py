@@ -15,5 +15,5 @@ setup(
     license='MIT',
     author='Andrey Vlasovskikh',
     author_email='andrey.vlasovskikh@gmail.com',
-    description='Static site generator in a single Python file similar to '
-                'Jekyll')
+    description='Static site generator in a single Python file mostly '
+                'compatible with Jekyll')
