@@ -8,7 +8,8 @@ Obraz
 **Obraz** (*Russian: Образ*). IPA: /ˈobrəs/ *n.*
 
 1. Image, the result of applying a function to an argument
-2. A static site generator in a single Python file similar to Jekyll
+2. A static site generator in a single Python file mostly compatible
+   with Jekyll
 
 See `Wiktionary`__ for other meanings.
 
