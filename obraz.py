@@ -80,6 +80,7 @@ _loaders = []
 _processors = []
 _file_filters = {}
 _template_filters = {}
+_render_string = lambda string, context, site: string
 _default_config = {
     'source': './',
     'destination': './_site',
@@ -115,6 +116,13 @@ def template_filter(name):
         return f
 
     return wrapper
+
+
+def template_renderer(f):
+    """Set a custom template renderer."""
+    global _render_string
+    _render_string = f
+    return f
 
 
 def loader(f):
@@ -288,11 +296,12 @@ def load_file(path, config):
     }
 
 
-def render_string(source, s, context):
-    includes = os.path.join(source, '_includes')
+@template_renderer
+def jinja2_render_string(string, context, config):
+    includes = os.path.join(config['source'], '_includes')
     env = Environment(loader=FileSystemLoader(includes))
     env.filters.update(_template_filters)
-    t = env.from_string(s)
+    t = env.from_string(string)
     return t.render(**context)
 
 
@@ -367,11 +376,12 @@ def load_post(path, config):
     }
 
 
-def render_layout(source, content, page, site):
+def render_layout(content, page, site):
     name = page.get('layout', 'nil')
     if name == 'nil':
         return content
-    layout_file = os.path.join(source, '_layouts', '{0}.html'.format(name))
+    filename = '{0}.html'.format(name)
+    layout_file = os.path.join(site['source'], '_layouts', filename)
     layout = read_template(layout_file)
     if not layout:
         raise Exception("Cannot load template: '{0}'".format(layout_file))
@@ -384,21 +394,21 @@ def render_layout(source, content, page, site):
         'page': layout,
         'content': content,
     }
-    content = render_string(source, layout['content'], context)
-    return render_layout(source, content, layout, site)
+    content = _render_string(layout['content'], context, site)
+    return render_layout(content, layout, site)
 
 
-def render_page(source, page, site):
+def render_page(page, site):
     context = {
         'site': site,
         'page': page,
     }
-    content = render_string(source, page['content'], context)
+    content = _render_string(page['content'], context, site)
     f = _file_filters.get(file_suffix(page.get('path', '')))
     if f:
         content = f(content)
     page['content'] = content
-    return render_layout(source, content, page, site)
+    return render_layout(content, page, site)
 
 
 @processor
@@ -423,7 +433,7 @@ def generate_page(page, site):
     with open(dst, 'wb') as fd:
         fd.truncate()
         try:
-            rendered = render_page(site['source'], page, site)
+            rendered = render_page(page, site)
         except Exception as e:
             msg = "Cannot render '{0}': {1}".format(page.get('path'), e)
             raise Exception(msg)
