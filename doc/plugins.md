@@ -53,8 +53,8 @@ Functions for all these steps are registered via extension point decorators.
 This applies to third-party plugin functions as well as to the processing
 functions in Obraz itself.
 
-There are also a couple of extension points that allow to define content and
-template filters.
+There are also a couple of extension points that allow to change define content
+and template filters, or change the template system.
 
 
 Extension Points
@@ -196,6 +196,27 @@ Extension Points
         def markdownify(content):
             """Markdown Jinja2 template filter."""
             return markdown(content)
+
+* **`@obraz.template_renderer`**
+
+    Set a custom template renderer. You can change the template system used by
+    Obraz.
+
+    A template renderer is a function of type `(string: str, context: dict,
+    config: dict) -> str`.
+
+    Example:
+
+        import obraz
+        from mako.template import Template
+        from mako.lookup import TemplateLookup
+
+        @obraz.template_renderer
+        def mako_render_string(string, context, config):
+            """Render string using Mako template library."""
+            includes = os.path.join(config['source'], '_includes')
+            lookup = TemplateLookup(directories=[includes])
+            return Template(string, lookup=lookup).render(**context)
 
 
 Development Notes

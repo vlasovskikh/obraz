@@ -54,3 +54,6 @@ class ObrazTest(unittest.TestCase):
     def test_filters_after_rendering(self):
         """Issue #9."""
         self.do('filters_after_rendering')
+
+    def test_custom_template_renderer(self):
+        self.do('custom_template_renderer')

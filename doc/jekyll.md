@@ -19,10 +19,13 @@ Different
 
     Jekyll uses the Liquid templates system written in Ruby, but Obraz is
     written in Python and it cannot use Liquid. Obraz uses the Jinja2 templates
-    system instead. Its tag syntax is very similar to Liquid, but its set of
-    filters is quite different. The process of translation a Liquid template to
-    Jinja2 is usually straightforward. See the [Jinja2 templates
-    documentation][2] for details.
+    system by default. Note, that you can change the template system via
+    [plugins][5].
+
+    Jinja2 tag syntax is very similar to Liquid, but its set of filters is
+    quite different. The process of translation a Liquid template to Jinja2 is
+    usually straightforward. See the [Jinja2 templates documentation][2] for
+    details.
 
     Jekyll filters in Obraz: `markdownify`.
 
