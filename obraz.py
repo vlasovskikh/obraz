@@ -34,9 +34,10 @@ Options:
     -s --source=DIR         Source directory.
     -d --destination=DIR    Destination directory.
 
+    -w --watch              Watch for changes and rebuild.
     --host=HOSTNAME         Listen at the given hostname.
-    --port=PORT             Listen at the given port.
-    --baseurl=URL           Serve the website from the given base URL.
+    -p --port=PORT          Listen at the given port.
+    -b --baseurl=URL        Serve the website from the given base URL.
 
     -q --quiet              Be quiet.
     -t --trace              Display traceback when an error occurs.
@@ -52,7 +53,10 @@ import re
 import shutil
 import errno
 from glob import glob
+from io import BytesIO
 from datetime import datetime
+from threading import Thread
+from time import sleep
 import traceback
 
 try:
@@ -76,7 +80,7 @@ _loaders = []
 _processors = []
 _file_filters = {}
 _template_filters = {}
-_default_site = {
+_default_config = {
     'source': './',
     'destination': './_site',
     'include': ['.htaccess'],
@@ -136,12 +140,6 @@ def fallback_loader(f):
     return f
 
 
-def all_files(path):
-    for path, dirs, files in os.walk(path):
-        for filename in files:
-            yield os.path.join(path, filename)
-
-
 def load_yaml_mapping(path):
     try:
         with open(path, 'rb') as fd:
@@ -169,6 +167,30 @@ def merge(x1, x2):
         return x1
     else:
         raise ValueError("Cannot merge '{0!r}' and '{1!r}'".format(x1, x2))
+
+
+def all_source_files(source, destination):
+    dst_base, dst_name = os.path.split(os.path.realpath(destination))
+    for source, dirs, files in os.walk(source):
+        if os.path.realpath(source) == dst_base and dst_name in dirs:
+            dirs.remove(dst_name)
+        for filename in files:
+            yield os.path.join(source, filename)
+
+
+def changed_files(source, destination, poll_interval=1):
+    times = {}
+    while True:
+        changed = []
+        for path in all_source_files(source, destination):
+            new = os.stat(path).st_mtime
+            old = times.get(path)
+            if not old or new > old:
+                times[path] = new
+                changed.append(path)
+        if changed:
+            yield changed
+        sleep(poll_interval)
 
 
 def is_file_visible(path, site):
@@ -225,8 +247,10 @@ def info(message):
         log(message)
 
 
-def error(message):
-    log(message)
+def exception(e, trace):
+    if trace:
+        traceback.print_tb(sys.exc_traceback)
+    log('Error: {0}'.format(e))
 
 
 def log(message):
@@ -286,7 +310,8 @@ def read_template(path):
                 return None
             lines.append(line)
             offset += 1
-        front_matter = b''.join(lines)
+        front_matter = BytesIO(b''.join(lines))
+        front_matter.name = path
         page = yaml.load(front_matter)
         if not page:
             page = {}
@@ -436,11 +461,13 @@ def load_plugins(source):
         info('Loaded {0} plugins'.format(n))
 
 
-def load_site(site):
-    source = site['source']
+def load_site(config):
+    source = config['source']
+    destination = config['destination']
     info('Loading source files...')
+    site = config.copy()
     n = 0
-    for i, path in enumerate(all_files(source)):
+    for i, path in enumerate(all_source_files(source, destination)):
         rel_path = os.path.relpath(path, source)
         for loader in _loaders:
             data = loader(rel_path, site)
@@ -464,20 +491,10 @@ def generate_site(site):
     info('Site generated successfully')
 
 
-def build(site):
-    info('Source: {0}'.format(os.path.abspath(site['source'])))
-    info('Destination: {0}'.format(os.path.abspath(site['destination'])))
-    load_plugins(site['source'])
-    site = load_site(site)
-    generate_site(site)
-
-
-def serve(site):
-    build(site)
-
-    host = site['host']
-    port = int(site['port'])
-    baseurl = site['baseurl']
+def make_server(config):
+    host = config['host']
+    port = int(config['port'])
+    baseurl = config['baseurl']
 
     class Handler(SimpleHTTPRequestHandler):
         def send_head(self):
@@ -489,10 +506,47 @@ def serve(site):
                 self.path = '/' + self.path
             return SimpleHTTPRequestHandler.send_head(self)
 
-    httpd = HTTPServer((host, port), Handler)
-    info('Serving at {0}:{1}'.format(host, port))
-    os.chdir(site['destination'])
-    httpd.serve_forever()
+    return HTTPServer((host, port), Handler)
+
+
+def build(config):
+    site = load_site(config)
+    generate_site(site)
+
+
+def serve(config):
+    build(config)
+    server = make_server(config)
+    os.chdir(config['destination'])
+    info('Serving at {0}:{1}'.format(config['host'], config['port']))
+    server.serve_forever()
+
+
+def watch(config):
+    source = os.path.abspath(config['source'])
+    destination = os.path.abspath(config['destination'])
+    initial_dir = os.getcwd()
+    serving = False
+    server = make_server(config)
+
+    for changed in changed_files(source, destination):
+        if serving:
+            info('Changed {0} files, regenerating...'.format(len(changed)))
+            server.shutdown()
+            os.chdir(initial_dir)
+        try:
+            build(config)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            exception(e, config.get('trace'))
+        os.chdir(destination)
+        info('Serving at {0}:{1}'.format(config['host'], config['port']))
+        thread = Thread(target=server.serve_forever)
+        thread.daemon = True
+        thread.start()
+        if not serving:
+            serving = True
 
 
 def obraz(argv):
@@ -501,25 +555,31 @@ def obraz(argv):
     _quiet = opts['--quiet']
 
     try:
-        site = _default_site.copy()
+        config = _default_config.copy()
         source = opts['--source'] if opts['--source'] else './'
-        config = os.path.join(source, '_config.yml')
-        site.update(load_yaml_mapping(config))
-        site['time'] = datetime.utcnow()
+        config_file = os.path.join(source, '_config.yml')
+        config.update(load_yaml_mapping(config_file))
+        config['time'] = datetime.utcnow()
         for k, v in opts.items():
             if k.startswith('--') and v:
-                site[k[2:]] = v
+                config[k[2:]] = v
+
+        info('Source: {0}'.format(os.path.abspath(config['source'])))
+        info('Destination: {0}'.format(os.path.abspath(config['destination'])))
+
+        load_plugins(source)
 
         if opts['build']:
-            build(site)
+            build(config)
         elif opts['serve']:
-            serve(site)
+            if opts['--watch']:
+                watch(config)
+            else:
+                serve(config)
     except KeyboardInterrupt:
         info('Interrupted')
     except Exception as e:
-        if opts['--trace']:
-            traceback.print_tb(sys.exc_traceback)
-        error('Error: {0}'.format(e))
+        exception(e, opts['--trace'])
         sys.exit(1)
 
 
