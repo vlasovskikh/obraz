@@ -15,7 +15,7 @@ However, there are several differences you should be aware of.
 Different
 ---------
 
-* Jinja2 template system
+* Template system
 
     Jekyll uses the Liquid templates system written in Ruby, but Obraz is
     written in Python and it cannot use Liquid. Obraz uses the Jinja2 templates
@@ -26,18 +26,19 @@ Different
 
     Jekyll filters in Obraz: `markdownify`.
 
+* Plugin system
+
+    Obraz has its own [plugin system][5] incompatible with Jekyll.
+
 * Permalink syntax
 
-    Permalinks are specifed as follows:
+    Permalinks are specified using Python curly braces string formatting. For
+    example:
 
         /foo/bar/{year}/{month}/{day}/{title}.html
 
     Variables `i_month` and `i_day`, as well as built-in permalink styles, are
     not available.
-
-* Plugin system
-
-    Obraz has its own [plugin system][5] incompatible with Jekyll.
 
 
 Not Implemented Yet
@@ -58,8 +59,8 @@ Not Implemented Yet
 
 * Some command-line flags
 
-    The following command-line flags are not supported: `--safe`, `--watch`,
-    `--config`, `--drafts`, `--future`, `--lsi`, `--limit_posts`.
+    The following command-line flags are not supported: `--safe`, `--config`,
+    `--drafts`, `--future`, `--lsi`, `--limit_posts`.
 
 * Some config options
 
@@ -69,11 +70,6 @@ Not Implemented Yet
 
 Not in Obraz
 ------------
-
-* Jekyll-compatible plugin system
-
-    The [plugin system][5] of Obraz will never be compatible with Jekyll
-    (Python vs Ruby).
 
 * Syntax highlighting
 
