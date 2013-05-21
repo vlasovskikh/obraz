@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Obraz sites
+title: Obraz Sites
 ---
 
 Since the last 0.2.1 release several people have started to use Obraz for their
