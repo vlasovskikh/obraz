@@ -19,6 +19,7 @@ def load_capitals(path, config):
         }
     }
 
+
 @obraz.processor
 def process_size(site):
     for page in site.get('pages', {}):
