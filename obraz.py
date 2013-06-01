@@ -283,7 +283,7 @@ def object_name(f):
 
 @template_filter('markdownify')
 @file_filter(['.md', '.markdown'])
-def markdown_filter(s):
+def markdown_filter(s, config):
     return markdown(s)
 
 
@@ -300,7 +300,8 @@ def load_file(path, config):
 def jinja2_render_string(string, context, config):
     includes = os.path.join(config['source'], '_includes')
     env = Environment(loader=FileSystemLoader(includes))
-    env.filters.update(_template_filters)
+    for name, f in _template_filters.items():
+        env.filters[name] = lambda s: f(s, config)
     t = env.from_string(string)
     return t.render(**context)
 
@@ -406,7 +407,7 @@ def render_page(page, site):
     content = _render_string(page['content'], context, site)
     f = _file_filters.get(file_suffix(page.get('path', '')))
     if f:
-        content = f(content)
+        content = f(content, site)
     page['content'] = content
     return render_layout(content, page, site)
 

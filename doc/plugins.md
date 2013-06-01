@@ -100,7 +100,7 @@ Extension Points
     Register a site content processor.
 
     Content processors are useful when you need to extend or rearrange already
-    existing site data.
+    existing site data. Site data includes options from the configuration file.
 
     A site content processor is a fuction of type `(site: dict) -> None`.
 
@@ -137,7 +137,8 @@ Extension Points
     Register a generator of destination files for the site.
 
     Generators are useful when you need to create additional generated files
-    you need at your site, e.g. tag pages or image thumbnails.
+    you need at your site, e.g. tag pages or image thumbnails. Site data
+    includes options from the configuration file.
 
     A site content generator is a fuction of type `(site: dict) -> None`.
 
@@ -168,7 +169,7 @@ Extension Points
     File filters are useful for supporting alternative markup languages, such
     as Textile or ReStructured Text.
 
-    A file filter is a function of type `(content: str) -> str`.
+    A file filter is a function of type `(content: str, config: dict) -> str`.
 
     Example:
 
@@ -176,7 +177,7 @@ Extension Points
         from markdown import markdown
 
         @obraz.file_filter(['.md', '.mkdn'])
-        def markdown_filter(content):
+        def markdown_filter(content, config):
             """Render Mardown files with tables and footnotes extensions."""
             return markdown(content, ['tables', 'footnotes'])
 
@@ -185,7 +186,8 @@ Extension Points
     Register a template filter. Jinja2 [template filters][1] allow filtering
     variables in templates.
 
-    A template filter is a function of type `(content: str) -> str`.
+    A template filter is a function of type `(content: str, config: dict) ->
+    str`.
 
     Example:
 
@@ -193,7 +195,7 @@ Extension Points
         from markdown import markdown
 
         @obraz.template_filter('markdownify')
-        def markdownify(content):
+        def markdownify(content, config):
             """Markdown Jinja2 template filter."""
             return markdown(content)
 
