@@ -24,7 +24,7 @@ class ObrazTest(unittest.TestCase):
             source = os.path.join(tempdir, 'source')
             shutil.copytree(src, source)
             os.chdir(source)
-            obraz.obraz(['build', '-q'])
+            obraz.obraz(['build', '-q', '-t'])
             destination = os.path.join(source, '_site')
             diff = subprocess.Popen(['diff', '-urw', site, destination],
                                     stdout=subprocess.PIPE,
