@@ -11,10 +11,6 @@ Obraz
 2. A static site generator in a single Python file mostly compatible
    with Jekyll
 
-See `Wiktionary`__ for other meanings.
-
-__ http://en.wiktionary.org/wiki/образ#Russian
-
 
 Why?
 ----
@@ -22,7 +18,7 @@ Why?
 There are many static site generators. Why choose Obraz?
 
 * Written in the `Python`__ language
-* Single source file less than `600`__ lines
+* Single source file less than `700`__ lines
   of code
 * Mostly `compatible`__ with the popular
   Jekyll
