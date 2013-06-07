@@ -35,6 +35,7 @@ Options:
     -d --destination=DIR    Destination directory.
 
     -w --watch              Watch for changes and rebuild.
+    --drafts                Render posts in the _drafts folder.
     --host=HOSTNAME         Listen at the given hostname.
     -p --port=PORT          Listen at the given port.
     -b --baseurl=URL        Serve the website from the given base URL.
@@ -348,6 +349,31 @@ def load_page(path, config):
     }
 
 
+def read_post(path, date, title, config):
+    page = read_template(os.path.join(config['source'], path))
+    if not page:
+        return None
+    if 'date' in page:
+        date = page['date']
+    permalink = config.get('permalink', '/{year}/{month}/{day}/{title}.html')
+    url_vars = {
+        'year': '{0:04}'.format(date.year),
+        'month': '{0:02}'.format(date.month),
+        'day': '{0:02}'.format(date.day),
+        'title': title,
+    }
+    url = pathname2url(permalink.format(**url_vars))
+    page.update({'url': url, 'path': path})
+    if 'date' not in page:
+        date_str = '{year}-{month}-{day}'.format(**url_vars)
+        page['date'] = datetime.strptime(date_str, '%Y-%m-%d')
+    page['id'] = '/{year}/{month}/{day}/{title}'.format(**url_vars)
+    return {
+        'posts': [page],
+        'tags': dict((tag, [page]) for tag in page.get('tags', [])),
+    }
+
+
 @loader
 def load_post(path, config):
     post_re = re.compile('(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-'
@@ -358,23 +384,26 @@ def load_post(path, config):
     _, name = os.path.split(path)
     if not is_file_visible(name, config):
         return None
-    name, suffix = os.path.splitext(name)
+    name, _ = os.path.splitext(name)
     m = post_re.match(name)
     if not m:
         return None
-    permalink = config.get('permalink', '/{year}/{month}/{day}/{title}.html')
-    url = pathname2url(permalink.format(**m.groupdict()))
-    page = read_template(os.path.join(config['source'], path))
-    if not page:
+    date = datetime.strptime('{year}-{month}-{day}'.format(**m.groupdict()),
+                             '%Y-%m-%d')
+    return read_post(path, date, m.group('title'), config)
+
+
+@loader
+def load_draft(path, config):
+    if not config.get('drafts'):
         return None
-    page.update({'url': url, 'path': path})
-    date_str = '{year}-{month}-{day}'.format(**m.groupdict())
-    page.setdefault('date', datetime.strptime(date_str, '%Y-%m-%d'))
-    page['id'] = '/{year}/{month}/{day}/{title}'.format(**m.groupdict())
-    return {
-        'posts': [page],
-        'tags': dict((tag, [page]) for tag in page.get('tags', [])),
-    }
+    if '_drafts' not in path.split(os.path.sep):
+        return None
+    _, name = os.path.split(path)
+    if not is_file_visible(name, config):
+        return None
+    title, _ = os.path.splitext(name)
+    return read_post(path, config['time'], title, config)
 
 
 def render_layout(content, page, site):
@@ -589,11 +618,14 @@ def obraz(argv):
                 serve(config)
     except KeyboardInterrupt:
         info('Interrupted')
-    except Exception as e:
+    except BaseException as e:
         exception(e, opts['--trace'])
-        sys.exit(1)
+        raise
 
 
 if __name__ == '__main__':
     sys.modules['obraz'] = sys.modules[__name__]
-    obraz(sys.argv[1:])
+    try:
+        obraz(sys.argv[1:])
+    except:
+        sys.exit(1)
