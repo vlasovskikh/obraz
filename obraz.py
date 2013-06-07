@@ -627,5 +627,5 @@ if __name__ == '__main__':
     sys.modules['obraz'] = sys.modules[__name__]
     try:
         obraz(sys.argv[1:])
-    except:
+    except Exception:
         sys.exit(1)
