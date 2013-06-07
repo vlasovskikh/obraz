@@ -16,7 +16,7 @@ class ObrazTest(unittest.TestCase):
         testdir = os.path.dirname(__file__)
         self.datadir = os.path.join(testdir, 'data')
 
-    def do(self, name):
+    def do(self, name, extra_args=()):
         src = os.path.join(self.datadir, name, 'src')
         site = os.path.join(self.datadir, name, 'site')
         tempdir = tempfile.mkdtemp()
@@ -24,7 +24,7 @@ class ObrazTest(unittest.TestCase):
             source = os.path.join(tempdir, 'source')
             shutil.copytree(src, source)
             os.chdir(source)
-            obraz.obraz(['build', '-q', '-t'])
+            obraz.obraz(['build', '-q', '-t'] + list(extra_args))
             destination = os.path.join(source, '_site')
             diff = subprocess.Popen(['diff', '-urw', site, destination],
                                     stdout=subprocess.PIPE,
@@ -57,3 +57,9 @@ class ObrazTest(unittest.TestCase):
 
     def test_custom_template_renderer(self):
         self.do('custom_template_renderer')
+
+    def test_drafts(self):
+        self.do('drafts', ['--drafts'])
+
+    def test_no_drafts(self):
+        self.do('no_drafts')
