@@ -63,3 +63,6 @@ class ObrazTest(unittest.TestCase):
 
     def test_no_drafts(self):
         self.do('no_drafts')
+
+    def test_safe(self):
+        self.do('safe', ['--safe'])

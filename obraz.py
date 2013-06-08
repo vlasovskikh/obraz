@@ -33,6 +33,7 @@ Commands:
 Options:
     -s --source=DIR         Source directory.
     -d --destination=DIR    Destination directory.
+    --safe                  Disable custom plugins.
 
     -w --watch              Watch for changes and rebuild.
     --drafts                Render posts in the _drafts folder.
@@ -607,7 +608,8 @@ def obraz(argv):
         info('Source: {0}'.format(os.path.abspath(config['source'])))
         info('Destination: {0}'.format(os.path.abspath(config['destination'])))
 
-        load_plugins(source)
+        if not config.get('safe'):
+            load_plugins(source)
 
         if opts['build']:
             build(config)
