@@ -63,13 +63,13 @@ Not Implemented Yet
 
 * Some command-line flags
 
-    The following command-line flags are not supported: `--safe`, `--config`,
-    `--future`, `--lsi`, `--limit_posts`.
+    The following command-line flags are not supported: `--config`, `--future`,
+    `--lsi`, `--limit_posts`.
 
 * Some config options
 
-    The following `_config.yml` options are not supported: `safe`, `timezone`,
-    `future`, `lsi`, `limit_posts`.
+    The following `_config.yml` options are not supported: `timezone`, `future`,
+    `lsi`, `limit_posts`.
 
 
 Not in Obraz
