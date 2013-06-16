@@ -14,6 +14,7 @@ This is a list of several sites that are generated using Obraz:
 * [Labs.dendiz.com](http://labs.dendiz.com/)
   ([sources](https://github.com/dendiz/labs.dendiz.com))
 * [Huisman.tk](http://huisman.tk/)
+* [Incubos.org](http://incubos.org/)
 
 If you run your site on Obraz and you want to put a link to it here, feel free
 to contact me or send a pull request to the [Obraz repository][1] on Bitbucket.
