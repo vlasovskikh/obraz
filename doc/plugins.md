@@ -6,9 +6,6 @@ title: Obraz Plugins
 {{ page.title }}
 ================
 
-_The Obraz plugin system is still considered experimental and may be changed
-in the future versions._
-
 Plugins allow extending the site generation process via user-defined processing
 functions.
 
