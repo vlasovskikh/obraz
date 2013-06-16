@@ -96,5 +96,4 @@ your reports to the [bug tracker][4].
   [3]: http://softwaremaniacs.org/soft/highlight/en/
   [4]: https://bitbucket.org/vlasovskikh/obraz/issues
   [5]: {{ site.baseurl }}/plugins.html
-  [6]: https://bitbucket.org/vlasovskikh/obraz/src/master/obraz.py
 
