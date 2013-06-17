@@ -89,7 +89,7 @@ _default_config = {
     'include': ['.htaccess'],
     'exclude': [],
     'exclude_patterns': [
-        r'^[\.#_].*',
+        r'^[\.#].*',
         r'.*~$',
         r'.*\.s[uvw][a-z]$',  # *.swp files, etc.
     ],
@@ -188,11 +188,14 @@ def all_source_files(source, destination):
             yield os.path.join(source, filename)
 
 
-def changed_files(source, destination, poll_interval=1):
+def changed_files(source, destination, config, poll_interval=1):
     times = {}
     while True:
         changed = []
         for path in all_source_files(source, destination):
+            rel_path = os.path.relpath(path, source)
+            if not is_file_visible(rel_path, config):
+                continue
             new = os.stat(path).st_mtime
             old = times.get(path)
             if not old or new > old:
@@ -218,6 +221,11 @@ def is_file_visible(path, config):
         return False
     else:
         return True
+
+
+def is_underscored(path):
+    parts = path.split(os.path.sep)
+    return any(part.startswith('_') for part in parts)
 
 
 def path2url(path):
@@ -291,7 +299,7 @@ def markdown_filter(s, config):
 
 @fallback_loader
 def load_file(path, config):
-    if not is_file_visible(path, config):
+    if not is_file_visible(path, config) or is_underscored(path):
         return None
     return {
         'files': [{'url': path2url(path), 'path': path}],
@@ -334,7 +342,7 @@ def read_template(path):
 
 @loader
 def load_page(path, config):
-    if not is_file_visible(path, config):
+    if not is_file_visible(path, config) or is_underscored(path):
         return None
     name, suffix = os.path.splitext(path)
     if suffix in _file_filters:
@@ -382,9 +390,9 @@ def load_post(path, config):
     parts = path.split(os.path.sep)
     if '_posts' not in parts:
         return None
-    _, name = os.path.split(path)
-    if not is_file_visible(name, config):
+    if not is_file_visible(path, config):
         return None
+    _, name = os.path.split(path)
     name, _ = os.path.splitext(name)
     m = post_re.match(name)
     if not m:
@@ -400,9 +408,9 @@ def load_draft(path, config):
         return None
     if '_drafts' not in path.split(os.path.sep):
         return None
-    _, name = os.path.split(path)
-    if not is_file_visible(name, config):
+    if not is_file_visible(path, config):
         return None
+    _, name = os.path.split(path)
     title, _ = os.path.splitext(name)
     return read_post(path, config['time'], title, config)
 
@@ -570,7 +578,7 @@ def watch(config):
     serving = False
     server = make_server(config)
 
-    for changed in changed_files(source, destination):
+    for changed in changed_files(source, destination, config):
         if serving:
             info('Changed {0} files, regenerating...'.format(len(changed)))
             server.shutdown()
