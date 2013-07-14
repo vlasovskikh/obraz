@@ -60,6 +60,7 @@ from datetime import datetime
 from threading import Thread
 from time import sleep
 import traceback
+import readline
 
 try:
     from urllib.request import pathname2url, url2pathname
@@ -276,6 +277,20 @@ def log(message):
     sys.stderr.flush()
 
 
+def progress(msg, xs):
+    if _quiet:
+        for x in xs:
+            yield x
+    else:
+        size = len(xs)
+        for i, x in enumerate(xs, 1):
+            yield x
+            sys.stderr.write('\r' + ' ' * len(readline.get_line_buffer()))
+            s = '{0}: {1}% ({2}/{3})'.format(msg, int(i * 100 / size), i, size)
+            sys.stderr.write(s)
+        sys.stderr.write('\n')
+
+
 def file_suffix(path):
     _, ext = os.path.splitext(path)
     return ext
@@ -482,9 +497,9 @@ def generate_page(page, site):
 @generator
 def generate_pages(site):
     """Generate pages with YAML front matter."""
-    for post in site.get('posts', []):
-        generate_page(post, site)
-    for page in site.get('pages', []):
+    posts = site.get('posts', [])
+    pages = site.get('pages', [])
+    for page in progress('Generating pages', posts + pages):
         generate_page(page, site)
 
 
@@ -510,13 +525,12 @@ def load_plugins(source):
         info('Loaded {0} plugins'.format(n))
 
 
-def load_site(config):
+def load_site_files(files, config):
     source = config['source']
-    destination = config['destination']
     info('Loading source files...')
     site = config.copy()
     n = 0
-    for i, path in enumerate(all_source_files(source, destination)):
+    for i, path in enumerate(files):
         rel_path = os.path.relpath(path, source)
         for loader in _loaders:
             data = loader(rel_path, site)
@@ -526,6 +540,11 @@ def load_site(config):
                 break
     info('Loaded {0} files'.format(n))
     return site
+
+
+def load_site(config):
+    files = all_source_files(config['source'], config['destination'])
+    return load_site_files(files, config)
 
 
 def generate_site(site):
