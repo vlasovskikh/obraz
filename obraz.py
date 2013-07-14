@@ -76,7 +76,8 @@ from jinja2 import Environment, FileSystemLoader
 from docopt import docopt
 
 
-PAGE_ENCODING = 'UTF-8'
+PAGE_ENCODING = URL_ENCODING = 'UTF-8'
+PY2 = sys.version_info < (3,)
 
 _quiet = False
 _loaders = []
@@ -233,13 +234,16 @@ def path2url(path):
     m = re.match(r'(.*)[/\\]index.html?$', path)
     if m:
         path = m.group(1) + os.path.sep
-    return pathname2url(os.path.sep + path)
+    path = os.path.sep + path
+    url = pathname2url(path.encode(URL_ENCODING))
+    return url.decode('ASCII') if PY2 else url
 
 
 def url2path(url):
     if url.endswith('/'):
         url += 'index.html'
-    return url2pathname(url).lstrip(os.path.sep)
+    path = url2pathname(url.encode('ASCII') if PY2 else url)
+    return (path.decode(URL_ENCODING) if PY2 else path).lstrip(os.path.sep)
 
 
 def make_dirs(path):
