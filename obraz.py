@@ -95,6 +95,10 @@ _default_config = {
         r'.*~$',
         r'.*\.s[uvw][a-z]$',  # *.swp files, etc.
     ],
+    'full_build_patterns': [
+        r'_layouts',
+        r'_includes',
+    ],
     'host': '0.0.0.0',
     'port': '8000',
     'baseurl': '',
@@ -529,12 +533,22 @@ def load_plugins(source):
         info('Loaded {0} plugins'.format(n))
 
 
-def load_site_files(files, config):
+def build(config):
+    site = load_site(config)
+    generate_site(site)
+
+
+def build_delta(paths, config):
+    site = load_site_files(paths, config)
+    generate_site(site, clean=False)
+
+
+def load_site_files(paths, config):
     source = config['source']
     info('Loading source files...')
     site = config.copy()
     n = 0
-    for i, path in enumerate(files):
+    for i, path in enumerate(paths):
         rel_path = os.path.relpath(path, source)
         for loader in _loaders:
             data = loader(rel_path, site)
@@ -547,15 +561,16 @@ def load_site_files(files, config):
 
 
 def load_site(config):
-    files = all_source_files(config['source'], config['destination'])
-    return load_site_files(files, config)
+    paths = all_source_files(config['source'], config['destination'])
+    return load_site_files(paths, config)
 
 
-def generate_site(site):
+def generate_site(site, clean=True):
     destination = site['destination']
     make_dirs(destination)
-    for name in os.listdir(destination):
-        remove(os.path.join(destination, name))
+    if clean:
+        for name in os.listdir(destination):
+            remove(os.path.join(destination, name))
     for processor in _processors:
         msg = object_name(processor)
         info('{0}...'.format(msg))
@@ -581,11 +596,6 @@ def make_server(config):
     return HTTPServer((host, port), Handler)
 
 
-def build(config):
-    site = load_site(config)
-    generate_site(site)
-
-
 def serve(config):
     build(config)
     server = make_server(config)
@@ -607,7 +617,10 @@ def watch(config):
             server.shutdown()
             os.chdir(initial_dir)
         try:
-            build(config)
+            if full_build_required(changed, config) or not serving:
+                build(config)
+            else:
+                build_delta(changed, config)
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -619,6 +632,18 @@ def watch(config):
         thread.start()
         if not serving:
             serving = True
+
+
+def full_build_required(changed_paths, config):
+    patterns = config.get('full_build_patterns', [])
+    source = os.path.abspath(config['source'])
+    for path in changed_paths:
+        parts = os.path.relpath(path, source).split(os.path.sep)
+        if any(re.match(pattern, part)
+               for pattern in patterns
+               for part in parts):
+            return True
+    return False
 
 
 def obraz(argv):
