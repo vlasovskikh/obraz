@@ -51,6 +51,10 @@ Not Implemented Yet
 
     The `new` command is not supported.
 
+* Docs command
+
+    The `docs` command is not supported.
+
 * Textile markup
 
     Textile markup language is not supported. Note, that you can register
