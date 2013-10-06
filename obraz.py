@@ -62,11 +62,6 @@ from time import sleep
 import traceback
 
 try:
-    import readline
-except ImportError:
-    readline = None
-
-try:
     from urllib.request import pathname2url, url2pathname
     from http.server import SimpleHTTPRequestHandler, HTTPServer
 except ImportError:
@@ -296,11 +291,9 @@ def progress(msg, xs):
     else:
         size = len(xs)
         for i, x in enumerate(xs, 1):
-            s = '{0}: {1}% ({2}/{3})'.format(msg, int(i * 100 / size), i, size)
-            sys.stderr.write(s)
             yield x
-            buf_len =  len(readline.get_line_buffer()) if readline else len(s)
-            sys.stderr.write('\r' + ' ' * buf_len)
+            s = '{0}: {1}% ({2}/{3})'.format(msg, int(i * 100 / size), i, size)
+            sys.stderr.write('\r' + s)
         sys.stderr.write('\n')
 
 
