@@ -635,9 +635,10 @@ def watch(config):
 
 
 def log_serving(config):
-    info('Serving at http://{0}:{1}/{2}'.format(config['host'],
-                                                config['port'],
-                                                config['baseurl']))
+    url = 'http://{host}:{port}{baseurl}'.format(**config)
+    if not url.endswith('/'):
+        url += '/'
+    info('Serving at {0}'.format(url))
 
 
 def full_build_required(changed_paths, config):
