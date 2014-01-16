@@ -600,8 +600,7 @@ def serve(config):
     build(config)
     server = make_server(config)
     os.chdir(config['destination'])
-    info('Serving at http://{0}:{1}/{2}'.format
-         (config['host'], config['port'], config['baseurl']))
+    log_serving(config)
     server.serve_forever()
 
 
@@ -627,12 +626,18 @@ def watch(config):
         except Exception as e:
             exception(e, config.get('trace'))
         os.chdir(destination)
-        info('Serving at {0}:{1}'.format(config['host'], config['port']))
+        log_serving(config)
         thread = Thread(target=server.serve_forever)
         thread.daemon = True
         thread.start()
         if not serving:
             serving = True
+
+
+def log_serving(config):
+    info('Serving at http://{0}:{1}/{2}'.format(config['host'],
+                                                config['port'],
+                                                config['baseurl']))
 
 
 def full_build_required(changed_paths, config):
