@@ -600,7 +600,8 @@ def serve(config):
     build(config)
     server = make_server(config)
     os.chdir(config['destination'])
-    info('Serving at http://{0}:{1}/'.format(config['host'], config['port']))
+    info('Serving at http://{0}:{1}/{2}'.format
+         (config['host'], config['port'], config['baseurl']))
     server.serve_forever()
 
 
