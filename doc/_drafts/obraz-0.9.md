@@ -1,12 +1,12 @@
 ---
 layout: post
-title: Obraz 0.4 Released
+title: Obraz 0.9 Released
 tags:
   - release
 ---
 
-Obraz is now mostly compatible with Jekyll. It is still a single file with a
-few dependencies and it's less than 700 lines of very readable Pyhton code,
+Obraz is now mostly compatible with Jekyll 1.4. It is still a single file with
+a few dependencies and it's less than 700 lines of very readable Pyhton code,
 almost 5 times smaller than Jekyll.
 
 Major features of this release are:
