@@ -36,9 +36,9 @@ Options:
     --safe                  Disable custom plugins.
 
     -w --watch              Watch for changes and rebuild.
-    --drafts                Render posts in the _drafts folder.
-    --host=HOSTNAME         Listen at the given hostname.
-    -p --port=PORT          Listen at the given port.
+    -D --drafts             Render posts in the _drafts folder.
+    -H --host=HOSTNAME      Listen at the given hostname.
+    -P --port=PORT          Listen at the given port.
     -b --baseurl=URL        Serve the website from the given base URL.
 
     -q --quiet              Be quiet.

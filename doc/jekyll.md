@@ -6,11 +6,12 @@ title: Compatibility with Jekyll
 {{ page.title }}
 ================
 
-Obraz is mostly compatible with Jekyll. Since most parts of the [Jekyll
+Obraz is mostly compatible with Jekyll 1.4. Since most parts of the [Jekyll
 documentation][1] are valid for Obraz too, Obraz doesn't have its own
 documentation.
 
 However, there are several differences you should be aware of.
+
 
 Different
 ---------
@@ -43,17 +44,22 @@ Different
     Variables `i_month` and `i_day`, as well as built-in permalink styles, are
     not available.
 
+* Help command
+
+    Use `--help` flag instead of `help` command.
+
+* Verbosity level
+
+    Obraz is verbose by default, there is no `--verbose` flag. Use `--quiet`
+    flag to decrease verbosity.
+
 
 Not Implemented Yet
 -------------------
 
-* New site command
+* Some commands
 
-    The `new` command is not supported.
-
-* Docs command
-
-    The `docs` command is not supported.
+    The following commands are not supported: `new`, `docs`, `doctor`.
 
 * Textile markup
 
@@ -63,17 +69,18 @@ Not Implemented Yet
 * Some template data variables
 
     The following template data variables are not supported: `paginator`,
-    `site.related_posts`, `site.categories`,  `page.excerpt`, `page.categories`.
+    `site.related_posts`, `site.categories`,  `page.excerpt`,
+    `page.categories`, `site.data`.
 
 * Some command-line flags
 
-    The following command-line flags are not supported: `--config`, `--future`,
-    `--lsi`, `--limit_posts`.
+    The following command-line flags are not supported: `--future`,
+    `--lsi`, `--limit_posts`, `--detach`, `--plugins`, `--layouts`, `--config`.
 
 * Some config options
 
     The following `_config.yml` options are not supported: `timezone`, `future`,
-    `lsi`, `limit_posts`.
+    `lsi`, `limit_posts`, `encoding`.
 
 
 Not in Obraz
