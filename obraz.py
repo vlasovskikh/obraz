@@ -342,7 +342,6 @@ def read_template(path):
         if fd.read(3) != b'---':
             return None
         lines = []
-        offset = 1
         while True:
             line = fd.readline()
             if re.match(b'^---\r?\n', line):
@@ -350,7 +349,6 @@ def read_template(path):
             elif line == b'':
                 return None
             lines.append(line)
-            offset += 1
         front_matter = BytesIO(b''.join(lines))
         front_matter.name = path
         page = yaml.load(front_matter)
@@ -546,7 +544,7 @@ def load_site_files(paths, config):
     info('Loading source files...')
     site = config.copy()
     n = 0
-    for i, path in enumerate(paths):
+    for path in paths:
         rel_path = os.path.relpath(path, source)
         for loader in _loaders:
             data = loader(rel_path, site)
