@@ -13,7 +13,7 @@ This is a list of several sites that are generated using Obraz:
 * [Pirx.ru](http://pirx.ru)
 * [Labs.dendiz.com](http://labs.dendiz.com/)
   ([sources](https://github.com/dendiz/labs.dendiz.com))
-* [Huisman.tk](http://huisman.tk/)
+* [BrentHuisman.net](http://brenthuisman.net/)
 * [Incubos.org](http://incubos.org/)
 
 If you run your site on Obraz and you want to put a link to it here, feel free
