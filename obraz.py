@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2012-2013 Andrey Vlasovskikh
+# Copyright (c) 2012-2014 Andrey Vlasovskikh
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -648,7 +648,7 @@ def full_build_required(changed_paths, config):
 
 
 def obraz(argv):
-    opts = docopt(__doc__, argv=argv, version='0.3')
+    opts = docopt(__doc__, argv=argv, version='0.9')
     global _quiet
     _quiet = opts['--quiet']
 
