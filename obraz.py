@@ -60,7 +60,6 @@ from datetime import datetime
 from threading import Thread
 from time import sleep
 import traceback
-import readline
 
 try:
     from urllib.request import pathname2url, url2pathname
@@ -293,9 +292,8 @@ def progress(msg, xs):
         size = len(xs)
         for i, x in enumerate(xs, 1):
             yield x
-            sys.stderr.write('\r' + ' ' * len(readline.get_line_buffer()))
             s = '{0}: {1}% ({2}/{3})'.format(msg, int(i * 100 / size), i, size)
-            sys.stderr.write(s)
+            sys.stderr.write('\r' + s)
         sys.stderr.write('\n')
 
 
