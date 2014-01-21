@@ -411,8 +411,7 @@ def load_post(path, config):
         return None
     if not is_file_visible(path, config):
         return None
-    _, name = os.path.split(path)
-    name, _ = os.path.splitext(name)
+    name, _ = os.path.splitext(os.path.basename(path))
     m = post_re.match(name)
     if not m:
         return None
@@ -429,8 +428,7 @@ def load_draft(path, config):
         return None
     if not is_file_visible(path, config):
         return None
-    _, name = os.path.split(path)
-    title, _ = os.path.splitext(name)
+    title, _ = os.path.splitext(os.path.basename(path))
     return read_post(path, config['time'], title, config)
 
 
