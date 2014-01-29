@@ -33,6 +33,7 @@ Commands:
 Options:
     -s --source=DIR         Source directory.
     -d --destination=DIR    Destination directory.
+    --force                 Force overwriting the destination directory.
     --safe                  Disable custom plugins.
 
     -w --watch              Watch for changes and rebuild.
@@ -561,10 +562,18 @@ def load_site(config):
 
 def generate_site(site, clean=True):
     destination = site['destination']
+    marker = os.path.join(destination, '.obraz_destination')
+    write_denied = os.path.exists(destination) and not os.path.exists(marker)
+    if write_denied and not site.get('force'):
+        raise Exception("Use --force to overwrite the contents "
+                        "of '{0}' not marked as destination "
+                        "directory yet".format(destination))
     make_dirs(destination)
     if clean:
         for name in os.listdir(destination):
             remove(os.path.join(destination, name))
+        with open(marker, 'wb'):
+            pass
     for processor in _processors:
         msg = object_name(processor)
         info('{0}...'.format(msg))
