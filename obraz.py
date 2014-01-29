@@ -472,7 +472,7 @@ def render_page(page, site):
 def process_posts(site):
     """Sort and interlink posts."""
     posts = site.setdefault('posts', [])
-    posts.sort(key=lambda post: post['date'], reverse=True)
+    posts.sort(key=lambda p: p['date'], reverse=True)
     n = len(posts)
     for i, post in enumerate(posts):
         if i < n - 1:
@@ -545,8 +545,8 @@ def load_site_files(paths, config):
     n = 0
     for path in paths:
         rel_path = os.path.relpath(path, source)
-        for loader in _loaders:
-            data = loader(rel_path, site)
+        for f in _loaders:
+            data = f(rel_path, site)
             if data:
                 n += 1
                 site = merge(site, data)
@@ -574,10 +574,10 @@ def generate_site(site, clean=True):
             remove(os.path.join(destination, name))
         with open(marker, 'wb'):
             pass
-    for processor in _processors:
-        msg = object_name(processor)
+    for f in _processors:
+        msg = object_name(f)
         info('{0}...'.format(msg))
-        processor(site)
+        f(site)
     info('Site generated successfully')
 
 
