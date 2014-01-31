@@ -6,7 +6,7 @@ tags:
 ---
 
 Obraz is now mostly compatible with Jekyll 1.4. It is still a single file with
-a few dependencies and it's less than 700 lines of very readable Pyhton code,
+a few dependencies and it's less than 800 lines of very readable Pyhton code,
 almost 5 times smaller than Jekyll.
 
 Major features of this release are:

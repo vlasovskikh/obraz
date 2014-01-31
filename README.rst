@@ -18,7 +18,7 @@ Why?
 There are many static site generators. Why choose Obraz?
 
 * Written in the `Python`__ language
-* Single source file less than `700`__ lines
+* Single source file less than `800`__ lines
   of code
 * Mostly `compatible`__ with the popular
   Jekyll
