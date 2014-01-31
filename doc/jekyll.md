@@ -53,6 +53,13 @@ Different
     Obraz is verbose by default, there is no `--verbose` flag. Use `--quiet`
     flag to decrease verbosity.
 
+* Raw content of pages
+
+    Use `raw_content` template data variable on pages in order to disable
+    content rendering via the template system. In Jekyll you have to wrap your
+    content that could clash with template formatting into
+    {% raw %}`{% raw %}`{% endraw %} template tags.
+
 
 Not Implemented Yet
 -------------------

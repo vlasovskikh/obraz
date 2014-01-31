@@ -66,3 +66,6 @@ class ObrazTest(unittest.TestCase):
 
     def test_safe(self):
         self.do('safe', ['--safe'])
+
+    def test_raw_content(self):
+        self.do('raw_content')

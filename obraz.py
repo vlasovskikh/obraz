@@ -460,7 +460,9 @@ def render_page(page, site):
         'site': site,
         'page': page,
     }
-    content = _render_string(page['content'], context, site)
+    content = page['content']
+    if not page.get('raw_content', False):
+        content = _render_string(content, context, site)
     f = _file_filters.get(file_suffix(page.get('path', '')))
     if f:
         content = f(content, site)
