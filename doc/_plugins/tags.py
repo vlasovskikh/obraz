@@ -42,7 +42,7 @@ The following template variables are available inside a tag template:
 
 Requirements:
 
-* Obraz == 0.4.x
+* Obraz == 0.9.x
 """
 
 from __future__ import unicode_literals
