@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 """Static site generator in a single Python file mostly compatible with Jekyll.
 
 Usage:
@@ -47,7 +48,9 @@ Options:
     -v --version            Show version.
     -h --help               Show help message.
 
-For documentation see <http://obraz.pirx.ru/>."""
+For documentation see <http://obraz.pirx.ru/>.
+"""
+
 
 from __future__ import unicode_literals
 import sys
