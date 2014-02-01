@@ -78,14 +78,7 @@ from docopt import docopt
 
 PAGE_ENCODING = URL_ENCODING = 'UTF-8'
 PY2 = sys.version_info < (3,)
-
-_quiet = False
-_loaders = []
-_processors = []
-_file_filters = {}
-_template_filters = {}
-_render_string = lambda string, context, site: string
-_default_config = {
+DEFAULT_CONFIG = {
     'source': './',
     'destination': './_site',
     'include': ['.htaccess'],
@@ -103,6 +96,13 @@ _default_config = {
     'port': '8000',
     'baseurl': '',
 }
+
+_quiet = False
+_loaders = []
+_processors = []
+_file_filters = {}
+_template_filters = {}
+_render_string = lambda string, context, site: string
 
 
 def file_filter(extensions):
@@ -664,7 +664,7 @@ def obraz(argv):
     _quiet = opts['--quiet']
 
     try:
-        config = _default_config.copy()
+        config = DEFAULT_CONFIG.copy()
         source = opts['--source'] if opts['--source'] else './'
         config_file = os.path.join(source, '_config.yml')
         config.update(load_yaml_mapping(config_file))
