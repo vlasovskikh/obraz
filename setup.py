@@ -3,7 +3,6 @@ from setuptools import setup
 setup(
     name='obraz',
     version='0.9',
-    packages=['test'],
     py_modules=['obraz'],
     install_requires=['PyYAML', 'Jinja2', 'Markdown', 'docopt'],
     entry_points={
