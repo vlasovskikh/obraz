@@ -66,7 +66,7 @@ Not Implemented Yet
 
 * Some commands
 
-    The following commands are not supported: `new`, `docs`, `doctor`.
+    The following commands are not supported: `docs`, `doctor`.
 
 * Textile markup
 
