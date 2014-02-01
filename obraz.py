@@ -24,12 +24,13 @@
 """Static site generator in a single Python file mostly compatible with Jekyll.
 
 Usage:
-    obraz (build|serve) [options]
+    obraz (build | serve | new PATH) [options]
     obraz -h|--help
 
 Commands:
     build                   Build your site.
     serve                   Serve your site locally.
+    new                     Create a new Obraz site scaffold in PATH.
 
 Options:
     -s --source=DIR         Source directory.
@@ -668,12 +669,22 @@ def full_build_required(changed_paths, config):
     return False
 
 
+def new_site(path):
+    if os.path.exists(path) and os.listdir(path):
+        raise Exception("Path '{0}' exists and is not empty".format(path))
+    pass
+
+
 def obraz(argv):
     opts = docopt(__doc__, argv=argv, version='0.9')
     global _quiet
     _quiet = opts['--quiet']
 
     try:
+        if opts['new']:
+            new_site(opts['PATH'])
+            return
+
         config = DEFAULT_CONFIG.copy()
         source = opts['--source'] if opts['--source'] else './'
         config_file = os.path.join(source, '_config.yml')
