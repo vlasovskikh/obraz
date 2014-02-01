@@ -76,6 +76,12 @@ from jinja2 import Environment, FileSystemLoader
 from docopt import docopt
 
 
+__all__ = [
+    'file_filter', 'template_filter', 'template_renderer', 'loader',
+    'processor', 'generator',
+]
+
+
 PAGE_ENCODING = URL_ENCODING = 'UTF-8'
 PY2 = sys.version_info < (3,)
 DEFAULT_CONFIG = {
@@ -96,6 +102,7 @@ DEFAULT_CONFIG = {
     'port': '8000',
     'baseurl': '',
 }
+
 
 _quiet = False
 _loaders = []
