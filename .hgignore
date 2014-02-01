@@ -1,5 +1,5 @@
 syntax:glob
-doc/_site
+_site
 build
 dist
 venv
