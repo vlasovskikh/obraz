@@ -1,4 +1,14 @@
+import os
 from setuptools import setup
+
+
+def all_data_files(path, excluded_dirs=()):
+    for root, dirs, files in os.walk(path):
+        for dir_ in dirs:
+            if dir_ in excluded_dirs:
+                dirs.remove(dir_)
+        yield root, [os.path.join(root, file_) for file_ in files]
+
 
 setup(
     name='obraz',
@@ -10,6 +20,7 @@ setup(
             'obraz = obraz:main',
         ],
     },
+    data_files=list(all_data_files('scaffold', excluded_dirs=['_site'])),
     url='http://obraz.pirx.ru/',
     license='MIT',
     author='Andrey Vlasovskikh',
