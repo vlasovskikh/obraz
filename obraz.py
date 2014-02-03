@@ -672,7 +672,11 @@ def full_build_required(changed_paths, config):
 def new_site(path):
     if os.path.exists(path) and os.listdir(path):
         raise Exception("Path '{0}' exists and is not empty".format(path))
-    pass
+    dev_source = os.path.join(os.path.dirname(__file__), 'scaffold')
+    installed_source = os.path.join(sys.prefix, 'obraz/scaffold')
+    source = dev_source if os.path.exists(dev_source) else installed_source
+    shutil.copytree(source, path)
+    info("New Obraz site installed in '{0}'".format(path))
 
 
 def obraz(argv):
