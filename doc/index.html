@@ -7,22 +7,6 @@ heading:
   </section>
 ---
 
-<script type="text/javascript">
-  $(window).load(function () {
-    var quickstart = $('#quickstart');
-    var contents = quickstart.find('.file-content');
-    var links = quickstart.find('.dynamic-link');
-    links.click(function (e) {
-      var content = quickstart.find('.file-content[filename="' + $(this).text() + '"]');
-      var hidden = !content.is(':visible');
-      contents.fadeOut();
-      if (hidden) {
-        content.fadeIn();
-      }
-      e.stopPropagation();
-    });
-  });
-</script>
 <section>
   <section id="obraz-definition">
     <p><strong>Obraz</strong> (<em>Russian: Образ</em>). IPA: /ˈobrəs/ <em>n.</em></p>
@@ -99,109 +83,16 @@ heading:
 </code></pre>
       </li>
       <li>
-        <p>Create your own blog in the <code>/path/to/blog</code> directory:</p>
-        <pre><code>.
-|-- _layouts
-|   |-- <a class="dynamic-link">default.html</a>
-|   `-- <a class="dynamic-link">post.html</a>
-|-- _posts
-|   |-- <a class="dynamic-link">2012-05-24-hello-world.md</a>
-|   `-- <a class="dynamic-link">2012-05-25-second-blog-post.md</a>
-`-- <a class="dynamic-link">index.html</a>
+        <p>Create a new blog in the <code>my-blog</code> directory:</p>
+        <pre><code>$ obraz new my-blog
 </code></pre>
-        {% set default_html = '---
----
-
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>My Blog - {{ page.title }}</title>
-  </head>
-  <body>
-    {{ content }}
-  </body>
-</html>' %}
-        {% set post_html = '---
-layout: default
----
-
-<div class="entry">
-  <h1>{{ page.title }}</h1>
-  <p>Created at {{ page.date }}.</p>
-  {{ content }}
-</div>' %}
-        {% set hello_world_md = '---
-layout: post
-title: Hello, World!
----
-
-This is my _first_ blog post!
-
-It uses:
-
-* YAML for metadata
-* Markdown for formatting
-* Obraz for static generation' %}
-        {% set second_blog_post_md = '---
-layout: post
-title: Second Blog Post
----
-
-Just another blog post.' %}
-        {% set index_html = '---
-layout: default
----
-
-<div>
-  <h1>My Blog</h1>
-  <p>Welcome to my blog!</p>
-  <ul>
-  {% for post in site.posts %}
-    <li class="entry">
-      <span class="date">{{ post.date }}</span>
-      <a href="{{ post.url }}">{{ post.title }}</a>
-    </li>
-  {% endfor %}
-  </ul>
-</div>' %}
-        <div class="file-content" filename="default.html">
-          <p>The <code>_layouts</code> directory contains layout templates. <code>default.html</code> contains the default layout for all the site pages:</p>
-          <pre><code>{{ default_html | e }}
-</code></pre>
-        </div>
-        <div class="file-content" filename="post.html">
-          <p><code>post.html</code> contains the layout for blog posts. It uses the <code>default</code> layout in its YAML front matter:</p>
-          <pre><code>{{ post_html | e }}
-</code></pre>
-        </div>
-        <div class="file-content" filename="2012-05-24-hello-world.md">
-          <p><code>2012-05-24-hello-world.md</code> is the first blog post in Markdown. The publication date is specified in the filename using Jekyll conventions. It is based on the <code>post</code> layout:</p>
-          <pre><code>{{ hello_world_md | e }}
-</code></pre>
-        </div>
-        <div class="file-content" filename="2012-05-25-second-blog-post.md">
-          <p><code>2012-05-25-second-blog-post.md</code> is just another blog post:</p>
-          <pre><code>{{ second_blog_post_md | e }}
-</code></pre>
-        </div>
-        <div class="file-content" filename="index.html">
-          <p><code>index.html</code> is the start page of the blog. It contains the list of recent posts:</p>
-          <pre><code>{{ index_html | e }}
-</code></pre>
-        </div>
       </li>
       <li>
         <p>Generate your site using Obraz:</p>
-        <pre><code>$ cd /path/to/blog
-$ obraz build
-</code></pre>
-        <p>The generated files will appear in the <code>/path/to/blog/_site</code> directory.</p>
-      </li>
-      <li>
-        <p>Run the web server:</p>
-        <pre><code>$ obraz serve
-</code></pre>
-        <p>and check the results in the browser by visiting <a href="http://localhost:8000/">http://localhost:8000/</a>. You got your first Obraz blog up and running! Now it's time to play with the design and customize things.</p>
+        <pre><code>$ cd my-blog
+$ obraz serve</code></pre>
+        <p>and check the results in the browser by visiting <a href="http://localhost:8000/">http://localhost:8000/</a>.</p>
+        <p>You've got your first Obraz blog up and running! Now it's time to play with the design and customize things.</p>
       </li>
     </ol>
   </section>
