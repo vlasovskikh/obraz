@@ -20,7 +20,9 @@ setup(
             'obraz = obraz:main',
         ],
     },
-    data_files=list(all_data_files('scaffold', excluded_dirs=['_site'])),
+    data_files=[(os.path.join('obraz', root), files)
+                for root, files
+                in all_data_files('scaffold', excluded_dirs=['_site'])],
     url='http://obraz.pirx.ru/',
     license='MIT',
     author='Andrey Vlasovskikh',
