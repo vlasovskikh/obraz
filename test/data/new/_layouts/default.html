@@ -4,9 +4,36 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>My Blog - {{ page.title }}</title>
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/github.min.css">
+    <script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
   </head>
   <body>
-    {{ content }}
+    <div class="site">
+      <div class="header">
+        <h1 class="title"><a href="/">{{ site.name }}</a></h1>
+        <a class="extra" href="/">home</a>
+      </div>
+
+      {{ content }}
+
+      <div class="footer">
+        <div class="contact">
+          <p>
+            Your Name<br/>
+            What You Are<br/>
+            you@example.com
+          </p>
+        </div>
+        <div class="contact">
+          <p>
+            <a href="https://bitbucket.org/yourusername">bitbucket.org/yourusername</a><br/>
+            <a href="https://twitter.com/yourusername">twitter.com/yourusername</a><br/>
+          </p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
