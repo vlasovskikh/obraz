@@ -670,11 +670,18 @@ def full_build_required(changed_paths, config):
 
 
 def new_site(path):
+    from site import USER_BASE
+
     if os.path.exists(path) and os.listdir(path):
         raise Exception("Path '{0}' exists and is not empty".format(path))
     dev_source = os.path.join(os.path.dirname(__file__), 'scaffold')
-    installed_source = os.path.join(sys.prefix, 'obraz/scaffold')
-    source = dev_source if os.path.exists(dev_source) else installed_source
+    user_source = os.path.join(USER_BASE, 'obraz/scaffold')
+    if os.path.exists(dev_source):
+        source = dev_source
+    elif os.path.exists(user_source):
+        source = user_source
+    else:
+        source = os.path.join(sys.prefix, 'obraz/scaffold')
     shutil.copytree(source, path)
     info("New Obraz site installed in '{0}'".format(path))
 
