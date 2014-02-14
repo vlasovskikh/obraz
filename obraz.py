@@ -718,9 +718,13 @@ def obraz(argv):
         raise
 
 
-if __name__ == '__main__':
+def main():
     sys.modules['obraz'] = sys.modules[__name__]
     try:
         obraz(sys.argv[1:])
     except Exception:
         sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
