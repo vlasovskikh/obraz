@@ -406,8 +406,8 @@ def read_post(path, date, title, config):
 
 @loader
 def load_post(path, config):
-    post_re = re.compile('(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-'
-                         '(?P<title>.+)')
+    post_re = re.compile(r'(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-'
+                         r'(?P<title>.+)')
     parts = path.split(os.path.sep)
     if '_posts' not in parts:
         return None
