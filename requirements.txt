@@ -1,4 +1,0 @@
-PyYAML
-Jinja2
-Markdown
-docopt
