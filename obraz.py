@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-"""Static site generator in a single Python file mostly compatible with Jekyll.
+"""Static blog-aware site generator in Python mostly compatible with Jekyll.
 
 Usage:
     obraz (build | serve | new PATH) [options]
