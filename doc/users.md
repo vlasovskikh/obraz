@@ -9,7 +9,7 @@ title: Obraz Users
 This is a list of several sites that are generated using Obraz:
 
 * [Obraz](http://obraz.pirx.ru/)
-  ([sources](https://bitbucket.org/vlasovskikh/obraz/src/public/doc))
+  ([sources](https://github.com/vlasovskikh/obraz/tree/master/doc))
 * [Pirx.ru](http://pirx.ru)
 * [Labs.dendiz.com](http://labs.dendiz.com/)
   ([sources](https://github.com/dendiz/labs.dendiz.com))
@@ -18,6 +18,6 @@ This is a list of several sites that are generated using Obraz:
 * [Txt.arboreus.com](http://txt.arboreus.com/)
 
 If you run your site on Obraz and you want to put a link to it here, feel free
-to contact me or send a pull request to the [Obraz repository][1] on Bitbucket.
+to contact me or send a pull request to the [Obraz repository][1] on GitHub.
 
-  [1]: https://bitbucket.org/vlasovskikh/obraz
+  [1]: https://github.com/vlasovskikh/obraz

@@ -16,8 +16,8 @@ Obraz also offers powerful support for code snippets via highlight.js:
     # Prints 'Hi, Andrey' to sys.stdout
     print_hi('Andrey')
 
-Check out the [Obraz docs][obraz] for more info on how to get the most out of
-Obraz. File all bugs/feature requests at [Obraz's Bitbucket repo][obraz-bb].
+Check out the [Obraz docs][1] for more info on how to get the most out of
+Obraz. File all bugs/feature requests at [Obraz GitHub repo][2].
 
-[obraz]: http://obraz.pirx.ru/
-[obraz-bb]: https://bitbucket.org/vlasovskikh/obraz
+[1]: http://obraz.pirx.ru/
+[2]: https://github.com/vlasovskikh/obraz

@@ -10,6 +10,9 @@ def all_data_files(path, excluded_dirs=()):
         yield root, [os.path.join(root, file_) for file_ in files]
 
 
+with open('README.md', 'r') as fd:
+    long_description = fd.read()
+
 setup(
     name='obraz',
     version='0.9',
@@ -28,4 +31,5 @@ setup(
     author='Andrey Vlasovskikh',
     author_email='andrey.vlasovskikh@gmail.com',
     description='Static site generator in a single Python file mostly '
-                'compatible with Jekyll')
+                'compatible with Jekyll',
+    long_description=long_description)

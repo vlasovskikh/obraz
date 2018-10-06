@@ -25,11 +25,11 @@ Obraz plugins are incompatible with Jekyll plugins, see
 Available Plugins
 -----------------
 
-* [Tags](https://bitbucket.org/vlasovskikh/obraz/src/public/doc/_plugins/tags.py)
+* [Tags](https://github.com/vlasovskikh/obraz/blob/master/doc/_plugins/tags.py)
   by [Andrey Vlasovskikh](http://pirx.ru/): Generate per-tag pages
 
 _Note:_ You can add your plugins to this list by sending a pull request to the
-[Obraz repository][3] on Bitbucket.
+[Obraz repository][3] on GitHub.
 
 
 Site Model
@@ -238,4 +238,4 @@ plugins API and may be changed or removed in future versions.
 
   [1]: http://jinja.pocoo.org/docs/templates/#filters
   [2]: http://jekyllrb.com/docs/variables/
-  [3]: https://bitbucket.org/vlasovskikh/obraz
+  [3]: https://github.com/vlasovskikh/obraz
