@@ -1,0 +1,8 @@
+/build/
+/dist/
+/tmp/
+/.idea/
+_site
+*.pyc
+*.egg-info
+*.swp
