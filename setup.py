@@ -1,5 +1,12 @@
 import os
+import sys
+
 import setuptools
+
+
+if sys.version_info < (3, 6):
+    print('Obraz requires Python 3.6 or higher')
+    sys.exit(1)
 
 
 def all_data_files(path, excluded_dirs=()):

@@ -53,32 +53,24 @@ For documentation see <http://obraz.pirx.ru/>.
 """
 
 
-from __future__ import unicode_literals
-import sys
+import errno
 import os
 import re
 import shutil
-import errno
-from glob import glob
-from io import BytesIO
+import sys
+import traceback
 from datetime import datetime
+from glob import glob
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+from io import BytesIO
 from threading import Thread
 from time import sleep
-import traceback
-
-try:
-    from urllib.request import pathname2url, url2pathname
-    from http.server import SimpleHTTPRequestHandler, HTTPServer
-except ImportError:
-    from urllib import pathname2url, url2pathname
-    from SimpleHTTPServer import SimpleHTTPRequestHandler
-    from BaseHTTPServer import HTTPServer
+from urllib.request import pathname2url, url2pathname
 
 import yaml
-from markdown import markdown
-from jinja2 import Environment, FileSystemLoader
 from docopt import docopt
-
+from jinja2 import Environment, FileSystemLoader
+from markdown import markdown
 
 __all__ = [
     'file_filter', 'template_filter', 'template_renderer', 'loader',
@@ -87,7 +79,7 @@ __all__ = [
 
 
 PAGE_ENCODING = URL_ENCODING = 'UTF-8'
-PY2 = sys.version_info < (3,)
+
 DEFAULT_CONFIG = {
     'source': './',
     'destination': './_site',
@@ -250,15 +242,13 @@ def path2url(path):
     if m:
         path = m.group(1) + os.path.sep
     path = os.path.sep + path
-    url = pathname2url(path.encode(URL_ENCODING))
-    return url.decode('ASCII') if PY2 else url
+    return pathname2url(path.encode(URL_ENCODING))
 
 
 def url2path(url):
     if url.endswith('/'):
         url += 'index.html'
-    path = url2pathname(url.encode('ASCII') if PY2 else url)
-    return (path.decode(URL_ENCODING) if PY2 else path).lstrip(os.path.sep)
+    return url2pathname(url).lstrip(os.path.sep)
 
 
 def make_dirs(path):
