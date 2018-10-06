@@ -189,7 +189,7 @@ def merge(x1, x2):
     elif x1 == x2:
         return x1
     else:
-        raise ValueError("Cannot merge '{0!r}' and '{1!r}'".format(x1, x2))
+        raise ValueError(f"Cannot merge '{x1!r}' and '{x2!r}'")
 
 
 def all_source_files(source: str, destination: str) -> Iterable[str]:
@@ -283,11 +283,11 @@ def info(message: str) -> None:
 def exception(e: BaseException, trace: bool) -> None:
     if trace:
         traceback.print_tb(sys.exc_traceback)
-    log('Error: {0}'.format(e))
+    log(f'Error: {e}')
 
 
 def log(message: str) -> None:
-    sys.stderr.write('{0}\n'.format(message))
+    sys.stderr.write(f'{message}\n')
     sys.stderr.flush()
 
 
@@ -299,7 +299,7 @@ def progress(msg: str, xs: Sequence[_T]) -> Iterable[_T]:
         size = len(xs)
         for i, x in enumerate(xs, 1):
             yield x
-            s = '{0}: {1}% ({2}/{3})'.format(msg, int(i * 100 / size), i, size)
+            s = f'{msg}: {int(i * 100 / size)}% ({i}/{size})'
             sys.stderr.write('\r' + s)
         sys.stderr.write('\n')
 
@@ -373,7 +373,7 @@ def load_page(path: str, config: Dict[str, Any]) -> Optional[Dict['str', Any]]:
         return None
     name, suffix = os.path.splitext(path)
     if suffix in _file_filters:
-        dst = '{0}.html'.format(name)
+        dst = f'{name}.html'
     else:
         dst = path
     page = read_template(os.path.join(config['source'], path))
@@ -394,9 +394,9 @@ def read_post(path: str, date: datetime, title: str,
         date = page['date']
     permalink = config.get('permalink', '/{year}/{month}/{day}/{title}.html')
     url_vars = {
-        'year': '{0:04}'.format(date.year),
-        'month': '{0:02}'.format(date.month),
-        'day': '{0:02}'.format(date.day),
+        'year': f'{date.year:04}',
+        'month': f'{date.month:02}',
+        'day': f'{date.day:02}',
         'title': title,
     }
     url = pathname2url(permalink.format(**url_vars))
@@ -446,11 +446,10 @@ def render_layout(content: str, page: Dict[str, Any],
     name = page.get('layout', 'nil')
     if name == 'nil':
         return content
-    filename = '{0}.html'.format(name)
-    layout_file = os.path.join(site['source'], '_layouts', filename)
+    layout_file = os.path.join(site['source'], '_layouts', f'{name}.html')
     layout = read_template(layout_file)
     if not layout:
-        raise Exception("Cannot load template: '{0}'".format(layout_file))
+        raise Exception(f"Cannot load template: '{layout_file}'")
     page_copy = page.copy()
     page_copy.pop('layout', None)
     page_copy.pop('content', None)
@@ -503,8 +502,7 @@ def generate_page(page: Dict[str, Any], site: Dict[str, Any]) -> None:
         try:
             rendered = render_page(page, site)
         except Exception as e:
-            msg = "Cannot render '{0}': {1}".format(page.get('path'), e)
-            raise Exception(msg)
+            raise Exception(f"Cannot render '{page.get('path')}': {e}")
         fd.write(rendered.encode(PAGE_ENCODING))
 
 
@@ -536,7 +534,7 @@ def load_plugins(source: str) -> None:
             exec(compile(code, plugin, 'exec'), {})
         n += 1
     if n > 0:
-        info('Loaded {0} plugins'.format(n))
+        info(f'Loaded {n} plugins')
 
 
 def build(config: Dict[str, Any]) -> None:
@@ -563,7 +561,7 @@ def load_site_files(paths: Iterable[str],
                 n += 1
                 site = merge(site, data)
                 break
-    info('Loaded {0} files'.format(n))
+    info(f'Loaded {n} files')
     return site
 
 
@@ -577,9 +575,9 @@ def generate_site(site: Dict[str, Any], clean: bool = True) -> None:
     marker = os.path.join(destination, '.obraz_destination')
     write_denied = os.path.exists(destination) and not os.path.exists(marker)
     if write_denied and not site.get('force'):
-        raise Exception("Use --force to overwrite the contents "
-                        "of '{0}' not marked as destination "
-                        "directory yet".format(destination))
+        raise Exception(f"Use --force to overwrite the contents "
+                        f"of '{destination}' not marked as destination "
+                        f"directory yet")
     make_dirs(destination)
     if clean:
         for name in os.listdir(destination):
@@ -588,7 +586,7 @@ def generate_site(site: Dict[str, Any], clean: bool = True) -> None:
             pass
     for f in _processors:
         msg = object_name(f)
-        info('{0}...'.format(msg))
+        info(f'{msg}...')
         f(site)
     info('Site generated successfully')
 
@@ -628,7 +626,7 @@ def watch(config: Dict[str, Any]) -> None:
 
     for changed in changed_files(source, destination, config):
         if serving:
-            info('Changed {0} files, regenerating...'.format(len(changed)))
+            info(f'Changed {len(changed)} files, regenerating...')
             server.shutdown()
             os.chdir(initial_dir)
         try:
@@ -653,7 +651,7 @@ def log_serving(config: Dict[str, Any]) -> None:
     url = 'http://{host}:{port}{baseurl}'.format(**config)
     if not url.endswith('/'):
         url += '/'
-    info('Serving at {0}'.format(url))
+    info(f'Serving at {url}')
 
 
 def full_build_required(changed_paths: Iterable[str],
@@ -673,7 +671,7 @@ def new_site(path: str) -> None:
     from site import USER_BASE
 
     if os.path.exists(path) and os.listdir(path):
-        raise Exception("Path '{0}' exists and is not empty".format(path))
+        raise Exception(f"Path '{path}' exists and is not empty")
     dev_source = os.path.join(os.path.dirname(__file__), 'scaffold')
     user_source = os.path.join(USER_BASE, 'obraz/scaffold')
     if os.path.exists(dev_source):
@@ -683,7 +681,7 @@ def new_site(path: str) -> None:
     else:
         source = os.path.join(sys.prefix, 'obraz/scaffold')
     shutil.copytree(source, path)
-    info("New Obraz site installed in '{0}'".format(path))
+    info(f"New Obraz site installed in '{path}'")
 
 
 def obraz(argv: List[str]) -> None:
@@ -705,8 +703,8 @@ def obraz(argv: List[str]) -> None:
             if k.startswith('--') and v:
                 config[k[2:]] = v
 
-        info('Source: {0}'.format(os.path.abspath(config['source'])))
-        info('Destination: {0}'.format(os.path.abspath(config['destination'])))
+        info(f'Source: {os.path.abspath(config["source"])}')
+        info(f'Destination: {os.path.abspath(config["destination"])}')
 
         if not config.get('safe'):
             load_plugins(source)
