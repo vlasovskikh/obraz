@@ -282,7 +282,7 @@ def info(message: str) -> None:
 
 def exception(e: BaseException, trace: bool) -> None:
     if trace:
-        traceback.print_tb(sys.exc_traceback)
+        traceback.print_tb(e.__traceback__)
     log(f'Error: {e}')
 
 
