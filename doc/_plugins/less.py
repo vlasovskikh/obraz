@@ -45,25 +45,24 @@ import obraz
 @obraz.processor
 def process_less(site):
     """Look for Less files."""
-    files = site.get('files', [])
-    less_files = site.setdefault('less_files', [])
+    files = site.get("files", [])
+    less_files = site.setdefault("less_files", [])
     for file_ in files:
-        if file_['path'].endswith('.less'):
+        if file_["path"].endswith(".less"):
             files.remove(file_)
             less_files.append(file_)
-            name, _ = os.path.splitext(file_['url'])
-            file_['url'] = name + '.css'
+            name, _ = os.path.splitext(file_["url"])
+            file_["url"] = name + ".css"
 
 
 @obraz.generator
 def generate_less(site):
     """Generate Less files."""
-    lessc = site.get('lessc')
+    lessc = site.get("lessc")
     if not lessc:
         raise Exception("No 'lessc' path in site config")
-    for file_ in site.get('less_files', []):
-        src = os.path.join(site['source'], file_['path'])
-        dst = os.path.join(site['destination'],
-                           obraz.url2path(file_['url']))
+    for file_ in site.get("less_files", []):
+        src = os.path.join(site["source"], file_["path"])
+        dst = os.path.join(site["destination"], obraz.url2path(file_["url"]))
         obraz.make_dirs(os.path.dirname(dst))
         subprocess.check_call([lessc, src, dst])

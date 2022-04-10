@@ -48,25 +48,25 @@ Requirements:
 from __future__ import unicode_literals
 import obraz
 
-__version__ = '0.1'
+__version__ = "0.1"
 default_page_info = {
-    'url': '/tags/{tag}.html',
-    'layout': 'tag',
+    "url": "/tags/{tag}.html",
+    "layout": "tag",
 }
 
 
 @obraz.processor
 def process_tags(site):
     """Processing tags."""
-    pages = site.get('pages', [])
-    settings = site.get('tags_plugin', {})
-    for page_info in settings.get('pages', [default_page_info]):
-        for tag, posts in site.get('tags', {}).items():
+    pages = site.get("pages", [])
+    settings = site.get("tags_plugin", {})
+    for page_info in settings.get("pages", [default_page_info]):
+        for tag, posts in site.get("tags", {}).items():
             page = {
-                'url': page_info['url'].format(tag=tag),
-                'layout': page_info['layout'],
-                'content': '',
-                'tag': tag,
-                'posts': posts,
+                "url": page_info["url"].format(tag=tag),
+                "layout": page_info["layout"],
+                "content": "",
+                "tag": tag,
+                "posts": posts,
             }
             pages.append(page)
