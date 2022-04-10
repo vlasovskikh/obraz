@@ -74,6 +74,7 @@ from typing import (
     TypeVar,
     Optional,
     List,
+    Union,
     cast,
 )
 from urllib.request import pathname2url, url2pathname
@@ -114,7 +115,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 }
 
 _quiet = False
-_loaders: list[Callable[[str, dict], dict | None]] = []
+_loaders: list[Callable[[str, dict], Optional[dict]]] = []
 _processors: list[Callable[[dict], None]] = []
 _render_string = lambda s, _context, _site: s
 _file_filters: dict[str, Callable[[str, dict], str]] = {}
@@ -150,7 +151,7 @@ def template_renderer(f: Callable[[str, dict, dict], str]) -> Any:
     return f
 
 
-def loader(f: Callable[[str, dict], dict | None]) -> Any:
+def loader(f: Callable[[str, dict], Optional[dict]]) -> Any:
     """Register a site source content loader."""
     _loaders.insert(0, f)
     return f
@@ -168,7 +169,7 @@ def generator(f: Callable[[dict], None]) -> Any:
     return f
 
 
-def fallback_loader(f: Callable[[str, dict], dict | None]) -> Any:
+def fallback_loader(f: Callable[[str, dict], Optional[dict]]) -> Any:
     _loaders.append(f)
     return f
 
@@ -605,7 +606,7 @@ def make_server(config: Dict[str, Any]) -> HTTPServer:
     baseurl = config["baseurl"]
 
     class Handler(SimpleHTTPRequestHandler):
-        def send_head(self) -> BytesIO | BinaryIO | None:
+        def send_head(self) -> Union[BytesIO, BinaryIO, None]:
             if not self.path.startswith(baseurl):
                 self.send_error(404, "File not found")
                 return None
