@@ -2,4 +2,4 @@ url: https://obraz.pirx.ru
 tags_plugin:
   descriptions:
     release: Release notes
-lessc: /usr/local/bin/lessc
+lessc: /opt/homebrew/bin/lessc
