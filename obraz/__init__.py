@@ -74,6 +74,7 @@ from typing import (
     TypeVar,
     Optional,
     List,
+    TypedDict,
     Union,
     cast,
 )
@@ -95,7 +96,25 @@ __all__ = [
 
 PAGE_ENCODING = "UTF-8"
 
-DEFAULT_CONFIG: Dict[str, Any] = {
+
+class ConfigBase(TypedDict):
+    source: str
+    destination: str
+    include: list[str]
+    exclude: list[str]
+    exclude_patterns: list[str]
+    full_build_patterns: list[str]
+    host: str
+    port: str
+    baseurl: str
+    permalink: str
+
+
+class Config(ConfigBase, total=False):
+    time: datetime
+
+
+DEFAULT_CONFIG: ConfigBase = {
     "source": "./",
     "destination": "./_site",
     "include": [".htaccess"],
@@ -112,14 +131,15 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "host": "localhost",
     "port": "8000",
     "baseurl": "",
+    "permalink": "/{year}/{month}/{day}/{title}.html",
 }
 
 _quiet = False
-_loaders: list[Callable[[str, dict], Optional[dict]]] = []
+_loaders: list[Callable[[str, Config], Optional[dict]]] = []
 _processors: list[Callable[[dict], None]] = []
 _render_string = lambda s, _context, _site: s
 _file_filters: dict[str, Callable[[str, dict], str]] = {}
-_template_filters: dict[str, Callable[[str, dict], str]] = {}
+_template_filters: dict[str, Callable[[str, Config], str]] = {}
 _T = TypeVar("_T")
 
 
@@ -137,21 +157,21 @@ def file_filter(extensions: Iterable[str]) -> Any:
 def template_filter(name: str) -> Any:
     """Register a template filter."""
 
-    def wrapper(f: Callable[[str, dict], str]) -> Callable[[str, dict], str]:
+    def wrapper(f: Callable[[str, Config], str]) -> Callable[[str, Config], str]:
         _template_filters[name] = f
         return f
 
     return wrapper
 
 
-def template_renderer(f: Callable[[str, dict, dict], str]) -> Any:
+def template_renderer(f: Callable[[str, dict, Config], str]) -> Any:
     """Set a custom template renderer."""
     global _render_string
     _render_string = f
     return f
 
 
-def loader(f: Callable[[str, dict], Optional[dict]]) -> Any:
+def loader(f: Callable[[str, Config], Optional[dict]]) -> Any:
     """Register a site source content loader."""
     _loaders.insert(0, f)
     return f
@@ -169,7 +189,7 @@ def generator(f: Callable[[dict], None]) -> Any:
     return f
 
 
-def fallback_loader(f: Callable[[str, dict], Optional[dict]]) -> Any:
+def fallback_loader(f: Callable[[str, Config], Optional[dict]]) -> Any:
     _loaders.append(f)
     return f
 
@@ -212,7 +232,7 @@ def all_source_files(source: str, destination: str) -> Iterable[str]:
 
 
 def changed_files(
-    source: str, destination: str, config: Dict[str, Any], poll_interval: int = 1
+    source: str, destination: str, config: Config, poll_interval: int = 1
 ) -> Iterable[list[str]]:
     times: dict[str, float] = {}
     while True:
@@ -231,7 +251,7 @@ def changed_files(
         sleep(poll_interval)
 
 
-def is_file_visible(path: str, config: Dict[str, Any]) -> bool:
+def is_file_visible(path: str, config: Config) -> bool:
     """Check file name visibility according to site settings."""
     parts = path.split(os.path.sep)
     exclude = config.get("exclude", [])
@@ -324,12 +344,12 @@ def object_name(f: Any) -> str:
 
 @template_filter("markdownify")
 @file_filter([".md", ".markdown"])
-def markdown_filter(s: str, config: Any) -> str:
+def markdown_filter(s: str, config: Config) -> str:
     return markdown(s)
 
 
 @fallback_loader
-def load_file(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def load_file(path: str, config: Config) -> Optional[Dict[str, Any]]:
     if not is_file_visible(path, config) or is_underscored(path):
         return None
     return {
@@ -338,9 +358,7 @@ def load_file(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 
 @template_renderer
-def jinja2_render_string(
-    string: str, context: Dict[str, Any], config: Dict[str, Any]
-) -> str:
+def jinja2_render_string(string: str, context: Dict[str, Any], config: Config) -> str:
     includes = os.path.join(config["source"], "_includes")
     env = Environment(loader=FileSystemLoader(includes))
     for name, f in _template_filters.items():
@@ -372,7 +390,7 @@ def read_template(path: str) -> Optional[Dict[str, Any]]:
 
 
 @loader
-def load_page(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def load_page(path: str, config: Config) -> Optional[Dict[str, Any]]:
     if not is_file_visible(path, config) or is_underscored(path):
         return None
     name, suffix = os.path.splitext(path)
@@ -388,21 +406,20 @@ def load_page(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 
 def read_post(
-    path: str, date: datetime, title: str, config: Dict[str, Any]
+    path: str, date: datetime, title: str, config: Config
 ) -> Optional[Dict[str, Any]]:
     page = read_template(os.path.join(config["source"], path))
     if not page:
         return None
     if "date" in page:
         date = page["date"]
-    permalink = config.get("permalink", "/{year}/{month}/{day}/{title}.html")
     url_vars = {
         "year": f"{date.year:04}",
         "month": f"{date.month:02}",
         "day": f"{date.day:02}",
         "title": title,
     }
-    url = pathname2url(permalink.format(**url_vars))
+    url = pathname2url(config["permalink"].format(**url_vars))
     page.update({"url": url, "path": path})
     if "date" not in page:
         date_str = "{year}-{month}-{day}".format(**url_vars)
@@ -415,7 +432,7 @@ def read_post(
 
 
 @loader
-def load_post(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def load_post(path: str, config: Config) -> Optional[Dict[str, Any]]:
     post_re = re.compile(
         r"(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-" r"(?P<title>.+)"
     )
@@ -433,7 +450,7 @@ def load_post(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 
 @loader
-def load_draft(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def load_draft(path: str, config: Config) -> Optional[Dict[str, Any]]:
     if not config.get("drafts"):
         return None
     if "_drafts" not in path.split(os.path.sep):
@@ -441,7 +458,7 @@ def load_draft(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     if not is_file_visible(path, config):
         return None
     title, _ = os.path.splitext(os.path.basename(path))
-    return read_post(path, config["time"], title, config)
+    return read_post(path, config.get("time", datetime.utcnow()), title, config)
 
 
 def render_layout(content: str, page: Dict[str, Any], site: Dict[str, Any]) -> str:
@@ -539,25 +556,25 @@ def load_plugins(source: str) -> None:
         info(f"Loaded {n} plugins")
 
 
-def build(config: Dict[str, Any]) -> None:
+def build(config: Config) -> None:
     site = load_site(config)
     generate_site(site)
 
 
-def build_delta(paths: Iterable[str], config: Dict[str, Any]) -> None:
+def build_delta(paths: Iterable[str], config: Config) -> None:
     site = load_site_files(paths, config)
     generate_site(site, clean=False)
 
 
-def load_site_files(paths: Iterable[str], config: Dict[str, Any]) -> Dict[str, Any]:
+def load_site_files(paths: Iterable[str], config: Config) -> Dict[str, Any]:
     source = config["source"]
     info("Loading source files...")
-    site = config.copy()
+    site = cast(dict[str, Any], config.copy())
     n = 0
     for path in paths:
         rel_path = os.path.relpath(path, source)
         for f in _loaders:
-            data = f(rel_path, site)
+            data = f(rel_path, config)
             if data:
                 n += 1
                 site = merge(site, data)
@@ -566,7 +583,7 @@ def load_site_files(paths: Iterable[str], config: Dict[str, Any]) -> Dict[str, A
     return site
 
 
-def load_site(config: Dict[str, Any]) -> Dict[str, Any]:
+def load_site(config: Config) -> Dict[str, Any]:
     paths = all_source_files(config["source"], config["destination"])
     return load_site_files(paths, config)
 
@@ -594,7 +611,7 @@ def generate_site(site: Dict[str, Any], clean: bool = True) -> None:
     info("Site generated successfully")
 
 
-def make_server(config: Dict[str, Any]) -> HTTPServer:
+def make_server(config: Config) -> HTTPServer:
     host = config["host"]
     port = int(config["port"])
     baseurl = config["baseurl"]
@@ -612,7 +629,7 @@ def make_server(config: Dict[str, Any]) -> HTTPServer:
     return HTTPServer((host, port), Handler)
 
 
-def serve(config: Dict[str, Any]) -> None:
+def serve(config: Config) -> None:
     build(config)
     server = make_server(config)
     os.chdir(config["destination"])
@@ -620,7 +637,7 @@ def serve(config: Dict[str, Any]) -> None:
     server.serve_forever()
 
 
-def watch(config: Dict[str, Any]) -> None:
+def watch(config: Config) -> None:
     source = os.path.abspath(config["source"])
     destination = os.path.abspath(config["destination"])
     initial_dir = os.getcwd()
@@ -650,14 +667,14 @@ def watch(config: Dict[str, Any]) -> None:
             serving = True
 
 
-def log_serving(config: Dict[str, Any]) -> None:
+def log_serving(config: Config) -> None:
     url = "http://{host}:{port}{baseurl}".format(**config)
     if not url.endswith("/"):
         url += "/"
     info(f"Serving at {url}")
 
 
-def full_build_required(changed_paths: Iterable[str], config: Dict[str, Any]) -> bool:
+def full_build_required(changed_paths: Iterable[str], config: Config) -> bool:
     patterns = config.get("full_build_patterns", [])
     source = os.path.abspath(config["source"])
     for path in changed_paths:
@@ -689,14 +706,15 @@ def obraz(argv: List[str]) -> None:
             new_site(opts["PATH"])
             return
 
-        config = DEFAULT_CONFIG.copy()
+        copy = cast(dict, DEFAULT_CONFIG.copy())
         source = opts["--source"] if opts["--source"] else "./"
         config_file = os.path.join(source, "_config.yml")
-        config.update(load_yaml_mapping(config_file))
-        config["time"] = datetime.utcnow()
+        copy.update(load_yaml_mapping(config_file))
+        copy["time"] = datetime.utcnow()
         for k, v in opts.items():
             if k.startswith("--") and v:
-                config[k[2:]] = v
+                copy[k[2:]] = v
+        config = cast(Config, copy)
 
         info(f'Source: {os.path.abspath(config["source"])}')
         info(f'Destination: {os.path.abspath(config["destination"])}')

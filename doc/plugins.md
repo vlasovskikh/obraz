@@ -71,8 +71,8 @@ Extension Points
     to parse and make available as a part of the site dictionary instead of
     treating them like pages with YAML front matter or regular static files.
 
-    A site content loader is a fuction of type `(path: str, config: dict) ->
-    dict | None`.
+    A site content loader is a fuction of type
+    `(path: str, config: Config) -> dict | None`.
 
     Example:
 
@@ -166,7 +166,7 @@ Extension Points
     File filters are useful for supporting alternative markup languages, such
     as Textile or ReStructured Text.
 
-    A file filter is a function of type `(content: str, config: dict) -> str`.
+    A file filter is a function of type `(content: str, config: Config) -> str`.
 
     Example:
 
@@ -183,8 +183,8 @@ Extension Points
     Register a template filter. Jinja2 [template filters][1] allow filtering
     variables in templates.
 
-    A template filter is a function of type `(content: str, config: dict) ->
-    str`.
+    A template filter is a function of type
+    `(content: str, config: Config) -> str`.
 
     Example:
 
@@ -201,8 +201,8 @@ Extension Points
     Set a custom template renderer. You can change the template system used by
     Obraz.
 
-    A template renderer is a function of type `(string: str, context: dict,
-    config: dict) -> str`.
+    A template renderer is a function of type
+    `(string: str, context: dict, config: Config) -> str`.
 
     Example:
 
