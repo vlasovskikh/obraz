@@ -52,7 +52,7 @@ Options:
 For documentation see <https://obraz.pirx.ru/>.
 """
 
-import errno
+import contextlib
 import os
 import re
 import shutil
@@ -266,22 +266,16 @@ def url2path(url: str) -> str:
 
 
 def make_dirs(path: str) -> None:
-    try:
+    with contextlib.suppress(FileExistsError):
         os.makedirs(path)
-    except OSError as e:
-        if e.errno == errno.EEXIST:
-            pass
 
 
 def remove(path: str) -> None:
-    try:
+    with contextlib.suppress(FileExistsError):
         if os.path.isdir(path):
             shutil.rmtree(path)
         else:
             os.remove(path)
-    except OSError as e:
-        if e.errno == errno.EEXIST:
-            pass
 
 
 def info(message: str) -> None:
