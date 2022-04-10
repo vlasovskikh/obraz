@@ -166,7 +166,7 @@ def fallback_loader(f: Callable[[str, dict], dict]) -> Any:
 def load_yaml_mapping(path: str) -> dict:
     try:
         with open(path, 'rb') as fd:
-            mapping = yaml.load(fd)
+            mapping = yaml.safe_load(fd)
             return mapping if mapping else {}
     except IOError as e:
         if e.errno == errno.ENOENT:
@@ -359,7 +359,7 @@ def read_template(path: str) -> Optional[Dict[str, Any]]:
             lines.append(line)
         front_matter = BytesIO(b''.join(lines))
         front_matter.name = path
-        page = yaml.load(front_matter)
+        page = yaml.safe_load(front_matter)
         if not page:
             page = {}
         content = fd.read().decode(PAGE_ENCODING)
