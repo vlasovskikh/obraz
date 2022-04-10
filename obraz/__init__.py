@@ -49,7 +49,7 @@ Options:
     -v --version            Show version.
     -h --help               Show help message.
 
-For documentation see <http://obraz.pirx.ru/>.
+For documentation see <https://obraz.pirx.ru/>.
 """
 
 import errno
@@ -108,7 +108,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         r"_layouts",
         r"_includes",
     ],
-    "host": "0.0.0.0",
+    "host": "localhost",
     "port": "8000",
     "baseurl": "",
 }

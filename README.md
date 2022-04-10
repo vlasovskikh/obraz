@@ -23,7 +23,7 @@ Documentation
 Visit the [Obraz homepage][4] for more info.
 
 
-[1]: http://xkcd.com/353/
-[2]: https://github.com/vlasovskikh/obraz/blob/master/obraz.py
-[3]: http://obraz.pirx.ru/jekyll.html
-[4]: http://obraz.pirx.ru/
+[1]: https://xkcd.com/353/
+[2]: https://github.com/vlasovskikh/obraz/blob/master/obraz/__init__.py
+[3]: https://obraz.pirx.ru/jekyll.html
+[4]: https://obraz.pirx.ru/

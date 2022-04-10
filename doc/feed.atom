@@ -1,7 +1,7 @@
 ---
 ---
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
+<feed xmlns="https://www.w3.org/2005/Atom">
  <title>Obraz</title>
  <id>{{ site.url }}{{ site.baseurl }}/</id>
  <updated>{{ site.time.isoformat() + 'Z' }}</updated>
@@ -17,7 +17,7 @@
      <link rel="alternate" href="{{ site.url }}{{ site.baseurl }}{{ post.url }}"/>
      <updated>{{ post.date.isoformat() + 'Z' }}</updated>
      <content type="xhtml">
-       <div xmlns="http://www.w3.org/1999/xhtml">{{ post.content }}</div>
+       <div xmlns="https://www.w3.org/1999/xhtml">{{ post.content }}</div>
      </content>
    </entry>
  {% endfor %}

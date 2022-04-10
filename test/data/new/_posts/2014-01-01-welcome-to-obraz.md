@@ -19,5 +19,5 @@ Obraz also offers powerful support for code snippets via highlight.js:
 Check out the [Obraz docs][1] for more info on how to get the most out of
 Obraz. File all bugs/feature requests at [Obraz GitHub repo][2].
 
-[1]: http://obraz.pirx.ru/
+[1]: https://obraz.pirx.ru/
 [2]: https://github.com/vlasovskikh/obraz

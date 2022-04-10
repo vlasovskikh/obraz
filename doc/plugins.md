@@ -26,7 +26,7 @@ Available Plugins
 -----------------
 
 * [Tags](https://github.com/vlasovskikh/obraz/blob/master/doc/_plugins/tags.py)
-  by [Andrey Vlasovskikh](http://pirx.ru/): Generate per-tag pages
+  by [Andrey Vlasovskikh](https://pirx.ru/): Generate per-tag pages
 
 _Note:_ You can add your plugins to this list by sending a pull request to the
 [Obraz repository][3] on GitHub.
@@ -236,6 +236,6 @@ You may use all functions defined in `obraz`, but they are not a part of the
 plugins API and may be changed or removed in future versions.
 
 
-  [1]: http://jinja.pocoo.org/docs/templates/#filters
-  [2]: http://jekyllrb.com/docs/variables/
+  [1]: https://jinja.palletsprojects.com/templates/#filters
+  [2]: https://jekyllrb.com/docs/variables/
   [3]: https://github.com/vlasovskikh/obraz
