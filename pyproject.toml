@@ -29,6 +29,9 @@ types-PyYAML = "^6.0.5"
 types-Markdown = "^3.3.12"
 types-Jinja2 = "^2.11.9"
 types-docopt = "^0.6.6"
+black = "^22.3.0"
+mypy = "^0.942"
+flake8 = "^4.0.1"
 
 [tool.poetry.scripts]
 obraz = "obraz:main"
