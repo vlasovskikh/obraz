@@ -1,4 +1,6 @@
 url: https://obraz.pirx.ru
+exclude:
+  - Makefile
 tags_plugin:
   descriptions:
     release: Release notes
