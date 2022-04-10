@@ -25,6 +25,10 @@ docopt = "^0.6.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.18.1"
+types-PyYAML = "^6.0.5"
+types-Markdown = "^3.3.12"
+types-Jinja2 = "^2.11.9"
+types-docopt = "^0.6.6"
 
 [tool.poetry.scripts]
 obraz = "obraz:main"

@@ -72,7 +72,7 @@ Extension Points
     treating them like pages with YAML front matter or regular static files.
 
     A site content loader is a fuction of type `(path: str, config: dict) ->
-    dict`.
+    dict | None`.
 
     Example:
 

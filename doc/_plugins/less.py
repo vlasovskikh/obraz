@@ -43,7 +43,7 @@ import obraz
 
 
 @obraz.processor
-def process_less(site):
+def process_less(site: dict) -> None:
     """Look for Less files."""
     files = site.get("files", [])
     less_files = site.setdefault("less_files", [])
@@ -56,7 +56,7 @@ def process_less(site):
 
 
 @obraz.generator
-def generate_less(site):
+def generate_less(site: dict) -> None:
     """Generate Less files."""
     lessc = site.get("lessc")
     if not lessc:

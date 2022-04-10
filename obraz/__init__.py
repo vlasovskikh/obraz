@@ -65,7 +65,7 @@ from io import BytesIO
 from threading import Thread
 from time import sleep
 from typing import (
-    Collection,
+    BinaryIO,
     Any,
     Callable,
     Iterable,
@@ -74,6 +74,7 @@ from typing import (
     TypeVar,
     Optional,
     List,
+    cast,
 )
 from urllib.request import pathname2url, url2pathname
 
@@ -91,7 +92,7 @@ __all__ = [
     "template_renderer",
 ]
 
-PAGE_ENCODING = URL_ENCODING = "UTF-8"
+PAGE_ENCODING = "UTF-8"
 
 DEFAULT_CONFIG: Dict[str, Any] = {
     "source": "./",
@@ -113,21 +114,18 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 }
 
 _quiet = False
-_loaders = []
-_processors = []
-_file_filters = {}
-_template_filters = {}
+_loaders: list[Callable[[str, dict], dict | None]] = []
+_processors: list[Callable[[dict], None]] = []
+_render_string = lambda s, _context, _site: s
+_file_filters: dict[str, Callable[[str, dict], str]] = {}
+_template_filters: dict[str, Callable[[str, dict], str]] = {}
 _T = TypeVar("_T")
 
 
-def _render_string(s: str, _context: dict, _site: dict) -> str:
-    return s
-
-
-def file_filter(extensions: Collection[str]) -> Any:
+def file_filter(extensions: Iterable[str]) -> Any:
     """Register a page content filter for file extensions."""
 
-    def wrapper(f):
+    def wrapper(f: Callable[[str, dict], str]) -> Callable[[str, dict], str]:
         for ext in extensions:
             _file_filters[ext] = f
         return f
@@ -138,7 +136,7 @@ def file_filter(extensions: Collection[str]) -> Any:
 def template_filter(name: str) -> Any:
     """Register a template filter."""
 
-    def wrapper(f):
+    def wrapper(f: Callable[[str, dict], str]) -> Callable[[str, dict], str]:
         _template_filters[name] = f
         return f
 
@@ -152,25 +150,25 @@ def template_renderer(f: Callable[[str, dict, dict], str]) -> Any:
     return f
 
 
-def loader(f: Callable[[str, dict], dict]) -> Any:
+def loader(f: Callable[[str, dict], dict | None]) -> Any:
     """Register a site source content loader."""
     _loaders.insert(0, f)
     return f
 
 
-def processor(f: Callable[[str], None]) -> Any:
+def processor(f: Callable[[dict], None]) -> Any:
     """Register a site content processor."""
     _processors.insert(0, f)
     return f
 
 
-def generator(f: Callable[[str], None]) -> Any:
+def generator(f: Callable[[dict], None]) -> Any:
     """Register a destination files generator for the site."""
     _processors.append(f)
     return f
 
 
-def fallback_loader(f: Callable[[str, dict], dict]) -> Any:
+def fallback_loader(f: Callable[[str, dict], dict | None]) -> Any:
     _loaders.append(f)
     return f
 
@@ -180,24 +178,23 @@ def load_yaml_mapping(path: str) -> dict:
         with open(path, "rb") as fd:
             mapping = yaml.safe_load(fd)
             return mapping if mapping else {}
-    except IOError as e:
-        if e.errno == errno.ENOENT:
-            return {}
+    except FileNotFoundError:
+        return {}
 
 
-def merge(x1, x2):
+def merge(x1: _T, x2: _T) -> _T:
     if isinstance(x1, dict) and isinstance(x2, dict):
-        res = x1.copy()
+        res_dict = x1.copy()
         for k, v in x2.items():
-            if k in res:
-                res[k] = merge(res[k], v)
+            if k in res_dict:
+                res_dict[k] = merge(res_dict[k], v)
             else:
-                res[k] = v
-        return res
+                res_dict[k] = v
+        return cast(_T, res_dict)
     elif isinstance(x1, list) and isinstance(x2, list):
-        res = list(x1)
-        res.extend(x2)
-        return res
+        res_list = x1.copy()
+        res_list.extend(x2)
+        return cast(_T, res_list)
     elif x1 == x2:
         return x1
     else:
@@ -215,8 +212,8 @@ def all_source_files(source: str, destination: str) -> Iterable[str]:
 
 def changed_files(
     source: str, destination: str, config: Dict[str, Any], poll_interval: int = 1
-) -> str:
-    times = {}
+) -> Iterable[list[str]]:
+    times: dict[str, float] = {}
     while True:
         changed = []
         for path in all_source_files(source, destination):
@@ -258,7 +255,7 @@ def path2url(path: str) -> str:
     if m:
         path = m.group(1) + os.path.sep
     path = os.path.sep + path
-    return pathname2url(path.encode(URL_ENCODING))
+    return pathname2url(path)
 
 
 def url2path(url: str) -> str:
@@ -380,7 +377,7 @@ def read_template(path: str) -> Optional[Dict[str, Any]]:
 
 
 @loader
-def load_page(path: str, config: Dict[str, Any]) -> Optional[Dict["str", Any]]:
+def load_page(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     if not is_file_visible(path, config) or is_underscored(path):
         return None
     name, suffix = os.path.splitext(path)
@@ -608,7 +605,7 @@ def make_server(config: Dict[str, Any]) -> HTTPServer:
     baseurl = config["baseurl"]
 
     class Handler(SimpleHTTPRequestHandler):
-        def send_head(self):
+        def send_head(self) -> BytesIO | BinaryIO | None:
             if not self.path.startswith(baseurl):
                 self.send_error(404, "File not found")
                 return None
@@ -648,7 +645,7 @@ def watch(config: Dict[str, Any]) -> None:
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            exception(e, config.get("trace"))
+            exception(e, bool(config.get("trace")))
         os.chdir(destination)
         log_serving(config)
         thread = Thread(target=server.serve_forever)
@@ -676,16 +673,11 @@ def full_build_required(changed_paths: Iterable[str], config: Dict[str, Any]) ->
 
 
 def new_site(path: str) -> None:
-    from site import USER_BASE
-
     if os.path.exists(path) and os.listdir(path):
         raise Exception(f"Path '{path}' exists and is not empty")
     dev_source = os.path.join(os.path.dirname(__file__), "scaffold")
-    user_source = os.path.join(USER_BASE, "obraz/scaffold")
     if os.path.exists(dev_source):
         source = dev_source
-    elif os.path.exists(user_source):
-        source = user_source
     else:
         source = os.path.join(sys.prefix, "obraz/scaffold")
     shutil.copytree(source, path)
@@ -693,7 +685,7 @@ def new_site(path: str) -> None:
 
 
 def obraz(argv: List[str]) -> None:
-    opts = docopt(__doc__, argv=argv, version="0.9")
+    opts = docopt(__doc__ or "", argv=argv, version="0.9")
     global _quiet
     _quiet = opts["--quiet"]
 
