@@ -111,6 +111,8 @@ class ConfigBase(TypedDict):
 class Config(ConfigBase, total=False):
     time: datetime
     drafts: bool
+    force: bool
+    trace: bool
 
 
 class File(TypedDict):
@@ -132,6 +134,7 @@ class PageBase(File, Template):
 
 class Page(PageBase, total=False):
     published: bool
+    raw_content: bool
 
 
 class PostBase(Page):
@@ -546,7 +549,7 @@ def render_page(page: Page, site: Site) -> str:
 @processor
 def process_posts(site: Site) -> None:
     """Sort and interlink posts."""
-    posts = site.setdefault("posts", [])
+    posts: list[Post] = site.setdefault("posts", [])
     posts.sort(key=lambda p: p["date"], reverse=True)
     n = len(posts)
     for i, post in enumerate(posts):
