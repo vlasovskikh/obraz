@@ -69,11 +69,9 @@ from typing import (
     Any,
     Callable,
     Iterable,
-    Dict,
     Sequence,
     TypeVar,
     Optional,
-    List,
     TypedDict,
     Union,
     cast,
@@ -112,6 +110,50 @@ class ConfigBase(TypedDict):
 
 class Config(ConfigBase, total=False):
     time: datetime
+    drafts: bool
+
+
+class File(TypedDict):
+    url: str
+    path: str
+
+
+class TemplateBase(TypedDict):
+    content: str
+
+
+class Template(TemplateBase, total=False):
+    layout: str
+
+
+class PageBase(File, Template):
+    pass
+
+
+class Page(PageBase, total=False):
+    published: bool
+
+
+class PostBase(Page):
+    date: datetime
+    id: str
+
+
+class Post(PostBase, total=False):
+    next: "Post"  # type: ignore
+    previous: "Post"  # type: ignore
+    tags: list[str]
+
+
+class SiteContents(TypedDict, total=False):
+    files: list[File]
+    pages: list[Page]
+    posts: list[Post]
+    tags: dict[str, list[Post]]
+
+
+class Site(SiteContents, Config):
+    pass
 
 
 DEFAULT_CONFIG: ConfigBase = {
@@ -135,10 +177,10 @@ DEFAULT_CONFIG: ConfigBase = {
 }
 
 _quiet = False
-_loaders: list[Callable[[str, Config], Optional[dict]]] = []
-_processors: list[Callable[[dict], None]] = []
-_render_string = lambda s, _context, _site: s
-_file_filters: dict[str, Callable[[str, dict], str]] = {}
+_loaders: list[Callable[[str, Config], Optional[SiteContents]]] = []
+_processors: list[Callable[[Site], None]] = []
+_render_string = lambda s, _context, _config: s
+_file_filters: dict[str, Callable[[str, Config], str]] = {}
 _template_filters: dict[str, Callable[[str, Config], str]] = {}
 _T = TypeVar("_T")
 
@@ -146,7 +188,7 @@ _T = TypeVar("_T")
 def file_filter(extensions: Iterable[str]) -> Any:
     """Register a page content filter for file extensions."""
 
-    def wrapper(f: Callable[[str, dict], str]) -> Callable[[str, dict], str]:
+    def wrapper(f: Callable[[str, Config], str]) -> Callable[[str, Config], str]:
         for ext in extensions:
             _file_filters[ext] = f
         return f
@@ -164,32 +206,32 @@ def template_filter(name: str) -> Any:
     return wrapper
 
 
-def template_renderer(f: Callable[[str, dict, Config], str]) -> Any:
+def template_renderer(f: Callable[[str, dict[str, Any], Config], str]) -> Any:
     """Set a custom template renderer."""
     global _render_string
     _render_string = f
     return f
 
 
-def loader(f: Callable[[str, Config], Optional[dict]]) -> Any:
+def loader(f: Callable[[str, Config], Optional[SiteContents]]) -> Any:
     """Register a site source content loader."""
     _loaders.insert(0, f)
     return f
 
 
-def processor(f: Callable[[dict], None]) -> Any:
+def processor(f: Callable[[Site], None]) -> Any:
     """Register a site content processor."""
     _processors.insert(0, f)
     return f
 
 
-def generator(f: Callable[[dict], None]) -> Any:
+def generator(f: Callable[[Site], None]) -> Any:
     """Register a destination files generator for the site."""
     _processors.append(f)
     return f
 
 
-def fallback_loader(f: Callable[[str, Config], Optional[dict]]) -> Any:
+def fallback_loader(f: Callable[[str, Config], Optional[SiteContents]]) -> Any:
     _loaders.append(f)
     return f
 
@@ -349,16 +391,17 @@ def markdown_filter(s: str, config: Config) -> str:
 
 
 @fallback_loader
-def load_file(path: str, config: Config) -> Optional[Dict[str, Any]]:
+def load_file(path: str, config: Config) -> Optional[SiteContents]:
     if not is_file_visible(path, config) or is_underscored(path):
         return None
+    file: File = {"url": path2url(path), "path": path}
     return {
-        "files": [{"url": path2url(path), "path": path}],
+        "files": [file],
     }
 
 
 @template_renderer
-def jinja2_render_string(string: str, context: Dict[str, Any], config: Config) -> str:
+def jinja2_render_string(string: str, context: dict[str, Any], config: Config) -> str:
     includes = os.path.join(config["source"], "_includes")
     env = Environment(loader=FileSystemLoader(includes))
     for name, f in _template_filters.items():
@@ -367,7 +410,7 @@ def jinja2_render_string(string: str, context: Dict[str, Any], config: Config) -
     return t.render(**context)
 
 
-def read_template(path: str) -> Optional[Dict[str, Any]]:
+def read_template(path: str) -> Optional[Template]:
     with open(path, "rb") as fd:
         if fd.read(3) != b"---":
             return None
@@ -390,7 +433,7 @@ def read_template(path: str) -> Optional[Dict[str, Any]]:
 
 
 @loader
-def load_page(path: str, config: Config) -> Optional[Dict[str, Any]]:
+def load_page(path: str, config: Config) -> Optional[SiteContents]:
     if not is_file_visible(path, config) or is_underscored(path):
         return None
     name, suffix = os.path.splitext(path)
@@ -398,41 +441,42 @@ def load_page(path: str, config: Config) -> Optional[Dict[str, Any]]:
         dst = f"{name}.html"
     else:
         dst = path
-    page = read_template(os.path.join(config["source"], path))
+    page = cast(Page, read_template(os.path.join(config["source"], path)))
     if not page:
         return None
-    page.update({"url": path2url(dst), "path": path})
+    page["url"] = path2url(dst)
+    page["path"] = path
     return {"pages": [page]}
 
 
 def read_post(
     path: str, date: datetime, title: str, config: Config
-) -> Optional[Dict[str, Any]]:
-    page = read_template(os.path.join(config["source"], path))
-    if not page:
+) -> Optional[SiteContents]:
+    post = cast(Post, read_template(os.path.join(config["source"], path)))
+    if not post:
         return None
-    if "date" in page:
-        date = page["date"]
+    if "date" in post:
+        date = post["date"]
     url_vars = {
         "year": f"{date.year:04}",
         "month": f"{date.month:02}",
         "day": f"{date.day:02}",
         "title": title,
     }
-    url = pathname2url(config["permalink"].format(**url_vars))
-    page.update({"url": url, "path": path})
-    if "date" not in page:
+    post["url"] = pathname2url(config["permalink"].format(**url_vars))
+    post["path"] = path
+    if "date" not in post:
         date_str = "{year}-{month}-{day}".format(**url_vars)
-        page["date"] = datetime.strptime(date_str, "%Y-%m-%d")
-    page["id"] = "/{year}/{month}/{day}/{title}".format(**url_vars)
+        post["date"] = datetime.strptime(date_str, "%Y-%m-%d")
+    post["id"] = "/{year}/{month}/{day}/{title}".format(**url_vars)
     return {
-        "posts": [page],
-        "tags": dict((tag, [page]) for tag in page.get("tags", [])),
+        "posts": [post],
+        "tags": dict((tag, [post]) for tag in post.get("tags", [])),
     }
 
 
 @loader
-def load_post(path: str, config: Config) -> Optional[Dict[str, Any]]:
+def load_post(path: str, config: Config) -> Optional[SiteContents]:
     post_re = re.compile(
         r"(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-" r"(?P<title>.+)"
     )
@@ -450,7 +494,7 @@ def load_post(path: str, config: Config) -> Optional[Dict[str, Any]]:
 
 
 @loader
-def load_draft(path: str, config: Config) -> Optional[Dict[str, Any]]:
+def load_draft(path: str, config: Config) -> Optional[SiteContents]:
     if not config.get("drafts"):
         return None
     if "_drafts" not in path.split(os.path.sep):
@@ -461,18 +505,20 @@ def load_draft(path: str, config: Config) -> Optional[Dict[str, Any]]:
     return read_post(path, config.get("time", datetime.utcnow()), title, config)
 
 
-def render_layout(content: str, page: Dict[str, Any], site: Dict[str, Any]) -> str:
-    name = page.get("layout", "nil")
+def render_layout(content: str, template: Template, site: Site) -> str:
+    name = template.get("layout", "nil")
     if name == "nil":
         return content
     layout_file = os.path.join(site["source"], "_layouts", f"{name}.html")
     layout = read_template(layout_file)
     if not layout:
         raise Exception(f"Cannot load template: '{layout_file}'")
-    page_copy = page.copy()
+    layout_copy = cast(dict, layout.copy())
+    page_copy = cast(dict, template.copy())
     page_copy.pop("layout", None)
     page_copy.pop("content", None)
-    layout.update(page_copy)
+    layout_copy.update(page_copy)
+    layout = cast(Template, layout_copy)
     context = {
         "site": site,
         "page": layout,
@@ -482,7 +528,7 @@ def render_layout(content: str, page: Dict[str, Any], site: Dict[str, Any]) -> s
     return render_layout(content, layout, site)
 
 
-def render_page(page: Dict[str, Any], site: Dict[str, Any]) -> str:
+def render_page(page: Page, site: Site) -> str:
     context = {
         "site": site,
         "page": page,
@@ -498,7 +544,7 @@ def render_page(page: Dict[str, Any], site: Dict[str, Any]) -> str:
 
 
 @processor
-def process_posts(site: Dict[str, Any]) -> None:
+def process_posts(site: Site) -> None:
     """Sort and interlink posts."""
     posts = site.setdefault("posts", [])
     posts.sort(key=lambda p: p["date"], reverse=True)
@@ -510,7 +556,7 @@ def process_posts(site: Dict[str, Any]) -> None:
             post["previous"] = posts[i - 1]
 
 
-def generate_page(page: Dict[str, Any], site: Dict[str, Any]) -> None:
+def generate_page(page: Page, site: Site) -> None:
     if not page.get("published", True):
         return
     url = page["url"]
@@ -526,16 +572,16 @@ def generate_page(page: Dict[str, Any], site: Dict[str, Any]) -> None:
 
 
 @generator
-def generate_pages(site: Dict[str, Any]) -> None:
+def generate_pages(site: Site) -> None:
     """Generate pages with YAML front matter."""
-    posts = site.get("posts", [])
+    posts = cast(list[Page], site.get("posts", []))
     pages = site.get("pages", [])
     for page in progress("Generating pages", posts + pages):
         generate_page(page, site)
 
 
 @generator
-def generate_files(site: Dict[str, Any]) -> None:
+def generate_files(site: Site) -> None:
     """Copy static files."""
     for file_dict in site.get("files", []):
         src = os.path.join(site["source"], file_dict["path"])
@@ -566,10 +612,10 @@ def build_delta(paths: Iterable[str], config: Config) -> None:
     generate_site(site, clean=False)
 
 
-def load_site_files(paths: Iterable[str], config: Config) -> Dict[str, Any]:
+def load_site_files(paths: Iterable[str], config: Config) -> Site:
     source = config["source"]
     info("Loading source files...")
-    site = cast(dict[str, Any], config.copy())
+    site = cast(SiteContents, config.copy())
     n = 0
     for path in paths:
         rel_path = os.path.relpath(path, source)
@@ -580,15 +626,15 @@ def load_site_files(paths: Iterable[str], config: Config) -> Dict[str, Any]:
                 site = merge(site, data)
                 break
     info(f"Loaded {n} files")
-    return site
+    return cast(Site, site)
 
 
-def load_site(config: Config) -> Dict[str, Any]:
+def load_site(config: Config) -> Site:
     paths = all_source_files(config["source"], config["destination"])
     return load_site_files(paths, config)
 
 
-def generate_site(site: Dict[str, Any], clean: bool = True) -> None:
+def generate_site(site: Site, clean: bool = True) -> None:
     destination = site["destination"]
     marker = os.path.join(destination, ".obraz_destination")
     write_denied = os.path.exists(destination) and not os.path.exists(marker)
@@ -696,7 +742,7 @@ def new_site(path: str) -> None:
     info(f"New Obraz site installed in '{path}'")
 
 
-def obraz(argv: List[str]) -> None:
+def obraz(argv: list[str]) -> None:
     opts = docopt(__doc__ or "", argv=argv, version="0.9")
     global _quiet
     _quiet = opts["--quiet"]

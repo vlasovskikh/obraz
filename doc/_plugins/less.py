@@ -39,12 +39,19 @@ Requirements:
 from __future__ import unicode_literals
 import os
 import subprocess
+from typing import cast
 import obraz
 
 
+class LessSite(obraz.Site, total=False):
+    lessc: str
+    less_files: list[obraz.File]
+
+
 @obraz.processor
-def process_less(site: dict) -> None:
+def process_less(site: obraz.Site) -> None:
     """Look for Less files."""
+    site = cast(LessSite, site)
     files = site.get("files", [])
     less_files = site.setdefault("less_files", [])
     for file_ in files:
@@ -56,8 +63,9 @@ def process_less(site: dict) -> None:
 
 
 @obraz.generator
-def generate_less(site: dict) -> None:
+def generate_less(site: obraz.Site) -> None:
     """Generate Less files."""
+    site = cast(LessSite, site)
     lessc = site.get("lessc")
     if not lessc:
         raise Exception("No 'lessc' path in site config")

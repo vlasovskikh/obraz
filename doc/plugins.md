@@ -72,7 +72,7 @@ Extension Points
     treating them like pages with YAML front matter or regular static files.
 
     A site content loader is a fuction of type
-    `(path: str, config: Config) -> dict | None`.
+    `(path: str, config: Config) -> SiteContents | None`.
 
     Example:
 
@@ -99,7 +99,7 @@ Extension Points
     Content processors are useful when you need to extend or rearrange already
     existing site data. Site data includes options from the configuration file.
 
-    A site content processor is a fuction of type `(site: dict) -> None`.
+    A site content processor is a fuction of type `(site: Site) -> None`.
 
     Example:
 
@@ -137,7 +137,7 @@ Extension Points
     you need at your site, e.g. tag pages or image thumbnails. Site data
     includes options from the configuration file.
 
-    A site content generator is a fuction of type `(site: dict) -> None`.
+    A site content generator is a fuction of type `(site: Site) -> None`.
 
         import os
         import obraz
@@ -202,7 +202,7 @@ Extension Points
     Obraz.
 
     A template renderer is a function of type
-    `(string: str, context: dict, config: Config) -> str`.
+    `(string: str, context: dict[str, Any], config: Config) -> str`.
 
     Example:
 
