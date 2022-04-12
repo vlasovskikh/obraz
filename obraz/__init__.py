@@ -128,11 +128,12 @@ class Template(TemplateBase, total=False):
     layout: str
 
 
-class PageBase(File, Template):
-    pass
+class PageBase(Template):
+    url: str
 
 
 class Page(PageBase, total=False):
+    path: str
     published: bool
     raw_content: bool
 
