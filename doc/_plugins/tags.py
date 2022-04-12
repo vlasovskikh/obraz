@@ -46,23 +46,44 @@ Requirements:
 """
 
 from __future__ import unicode_literals
+from typing import TypedDict, cast
 import obraz
 
+
+class TagsPageInfo(TypedDict):
+    url: str
+    layout: str
+
+
+class TagsConfig(TypedDict, total=False):
+    pages: list[TagsPageInfo]
+
+
+class TagsSite(obraz.Site, total=False):
+    tags_plugin: TagsConfig
+
+
+class TagPage(obraz.Page):
+    tag: str
+    posts: list[obraz.Post]
+
+
 __version__ = "0.1"
-default_page_info = {
+default_page_info: TagsPageInfo = {
     "url": "/tags/{tag}.html",
     "layout": "tag",
 }
 
 
 @obraz.processor
-def process_tags(site):
+def process_tags(site: obraz.Site) -> None:
     """Processing tags."""
+    site = cast(TagsSite, site)
     pages = site.get("pages", [])
     settings = site.get("tags_plugin", {})
     for page_info in settings.get("pages", [default_page_info]):
         for tag, posts in site.get("tags", {}).items():
-            page = {
+            page: TagPage = {
                 "url": page_info["url"].format(tag=tag),
                 "layout": page_info["layout"],
                 "content": "",
