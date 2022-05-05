@@ -1,0 +1,29 @@
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Install Obraz
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade obraz
+      - name: Build site with Obraz
+        working-directory: ./doc
+        run: |
+          obraz build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./doc/_site
+          cname: obraz-new.pirx.ru
