@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="https://www.w3.org/2005/Atom">
+ <title>Obraz</title>
+ <id>https://obraz.pirx.ru/</id>
+ <updated>2022-05-05T12:22:25.664971Z</updated>
+ <author>
+   <name>Andrey Vlasovskikh</name>
+ </author>
+ <link rel="self" href="https://obraz.pirx.ru/feed.atom"/>
+ <link rel="alternate" href="https://obraz.pirx.ru/"/>
+ 
+   <entry>
+     <title>Obraz 0.9.3 Released</title>
+     <id>https://obraz.pirx.ru/2022/05/05/obraz-0.9.3</id>
+     <link rel="alternate" href="https://obraz.pirx.ru/2022/05/05/obraz-0.9.3.html"/>
+     <updated>2022-05-05T00:00:00Z</updated>
+     <content type="xhtml">
+       <div xmlns="https://www.w3.org/1999/xhtml"><p>This is a maintenance release.</p>
+<p>What's new:</p>
+<ul>
+<li>Stricter type hints based on <code>TypedDict</code></li>
+</ul></div>
+     </content>
+   </entry>
+ 
+   <entry>
+     <title>Obraz 0.9.2 Released</title>
+     <id>https://obraz.pirx.ru/2022/04/10/obraz-0.9.2</id>
+     <link rel="alternate" href="https://obraz.pirx.ru/2022/04/10/obraz-0.9.2.html"/>
+     <updated>2022-04-10T00:00:00Z</updated>
+     <content type="xhtml">
+       <div xmlns="https://www.w3.org/1999/xhtml"><p>This is a bugfix release.</p>
+<p>What's new:</p>
+<ul>
+<li>Compatiblity with Python 3.9, 3.10</li>
+<li>Updated dependency versions</li>
+</ul></div>
+     </content>
+   </entry>
+ 
+   <entry>
+     <title>Obraz 0.9 Released</title>
+     <id>https://obraz.pirx.ru/2014/02/14/obraz-0.9</id>
+     <link rel="alternate" href="https://obraz.pirx.ru/2014/02/14/obraz-0.9.html"/>
+     <updated>2014-02-14T00:00:00Z</updated>
+     <content type="xhtml">
+       <div xmlns="https://www.w3.org/1999/xhtml"><p>Obraz is now <a href="/jekyll.html">mostly compatible</a> with Jekyll 1.4. It is still a single file
+with a few dependencies and it's less than 800 lines of very readable Python
+code, almost 5 times smaller than Jekyll.</p>
+<p>Major features of this release are:</p>
+<ul>
+<li>New <code>serve</code> command with a file watcher</li>
+<li>Command line options compatible with Jekyll</li>
+<li>New documented <a href="/plugins.html">plugin system</a></li>
+<li>Extension point for changing the template system</li>
+</ul></div>
+     </content>
+   </entry>
+ 
+   <entry>
+     <title>Obraz 0.3 Released</title>
+     <id>https://obraz.pirx.ru/2012/12/19/obraz-0.3</id>
+     <link rel="alternate" href="https://obraz.pirx.ru/2012/12/19/obraz-0.3.html"/>
+     <updated>2012-12-19T00:00:00Z</updated>
+     <content type="xhtml">
+       <div xmlns="https://www.w3.org/1999/xhtml"><p>In this release the command line arguments have been changed to be more
+informative for new users. The help message is shown by default.</p>
+<p>Also the plugin interface has been extended in order to provide an extension
+point for adding custom Jinja2 filters. The plugin system added in
+<a href="https://obraz.pirx.ru/2012/06/02/obraz-0.2.html">Obraz 0.2</a> is still considered experimental.</p>
+<p>What's new:</p>
+<ul>
+<li>Site path as a required command line argument</li>
+<li><code>obraz.template_filters</code> extension point for adding custom Jinja2
+  templates</li>
+<li><code>markdownify</code> template filter as in Jekyll</li>
+<li><code>obraz.filters</code> extension point renamed to <code>obraz.file_filters</code></li>
+</ul></div>
+     </content>
+   </entry>
+ 
+   <entry>
+     <title>Obraz Sites</title>
+     <id>https://obraz.pirx.ru/2012/11/15/obraz-sites</id>
+     <link rel="alternate" href="https://obraz.pirx.ru/2012/11/15/obraz-sites.html"/>
+     <updated>2012-11-15T00:00:00Z</updated>
+     <content type="xhtml">
+       <div xmlns="https://www.w3.org/1999/xhtml"><p>Since the last 0.2.1 release several people have started to use Obraz for their
+sites. The only site with open sources that I'm aware of is labs.dendiz.com.</p>
+<p>I keep a list of sites using Obraz. If you run your site on Obraz and you want
+to put a link to it on the Obraz homepage, feel free to send me an email or open
+a pull request.</p></div>
+     </content>
+   </entry>
+ 
+</feed>

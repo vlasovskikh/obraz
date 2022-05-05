@@ -1,0 +1,159 @@
+/* Ubuntu font licensed under UFL <https://ubuntu.com/legal/font-licence> */
+@import "highlight.min.css";
+@font-face {
+  font-family: "Ubuntu";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Ubuntu"), url("/media/Ubuntu-Regular.ttf") format("truetype");
+}
+/* HTML styles */
+body {
+  width: 900px;
+  font-family: "Arial", sans-serif;
+  font-size: 12pt;
+  line-height: 1.4em;
+  background: url('/media/monochrome.png');
+  background-repeat: repeat;
+  background-color: #DDDDCC;
+  margin: 2em auto 1em auto;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Ubuntu", "Arial", sans-serif;
+  font-weight: normal;
+}
+h1 {
+  font-size: 24pt;
+}
+h2 {
+  font-size: 20pt;
+}
+h3 {
+  font-size: 16pt;
+}
+h4 {
+  font-size: 14pt;
+}
+pre {
+  line-height: 1em;
+  color: #555544;
+  background: #EEEEEE;
+  border-radius: 0.4em;
+  -moz-border-radius: 0.4em;
+  padding: 0.5em;
+}
+code,
+pre code {
+  font-size: 10pt;
+}
+section {
+  margin-bottom: 2em;
+}
+heading {
+  margin: 1em 0;
+  color: #666666;
+}
+footer {
+  font-size: smaller;
+  color: #666666;
+  margin: 1em 0;
+}
+a {
+  color: #887733;
+}
+/* Custom styles */
+.hentry {
+  margin: 1em 0;
+}
+.hentry .navigation {
+  float: right;
+  text-align: right;
+  margin-bottom: 0.2em;
+}
+.hentry .published {
+  float: right;
+  clear: both;
+  color: #666666;
+}
+.hentry h3,
+.hentry h4 {
+  margin: 0.5em 0;
+}
+.dynamic-link {
+  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px dashed #887733;
+}
+.break {
+  clear: both;
+  border-top: 1px solid #888888;
+  border-bottom: 1px solid #EEEEEE;
+}
+.clear {
+  clear: both;
+}
+#buttons {
+  margin: 2em 0;
+}
+/* Layout styles */
+.twocolumn-left {
+  float: left;
+  width: 47%;
+  min-width: 300px;
+}
+.twocolumn-right {
+  float: right;
+  width: 47%;
+  min-width: 300px;
+}
+/* Main page */
+#obraz-logo h1 {
+  color: #000000;
+  font-size: 48pt;
+  text-align: center;
+  padding: 0;
+  margin: 0.8em;
+}
+#obraz-definition {
+  background: #EEEEEE;
+  border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
+  padding: 0.5em 2em;
+}
+#quickstart ol {
+  list-style-position: inside;
+  padding: 0;
+}
+#quickstart .file-content {
+  display: none;
+  margin: 1em 0;
+}
+#why-obraz .reason {
+  text-align: center;
+  float: left;
+  width: 120px;
+  margin: 0 10px;
+}
+#why-obraz .reason dt {
+  font-size: 18pt;
+  font-family: "Ubuntu", "Arial", sans-serif;
+  color: #333026;
+  padding: 30px 0;
+  background: #BBAA88;
+  border-radius: 0.4em;
+  -moz-border-radius: 0.4em;
+}
+#why-obraz .reason dd {
+  padding: 0;
+  margin: 1em 0 0 0;
+}
+#why-obraz dl {
+  padding: 0;
+  margin: 0;
+}
+#videos ul {
+  list-style-position: inside;
+  padding: 0;
+}

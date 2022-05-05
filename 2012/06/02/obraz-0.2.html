@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Obraz 0.2 Released</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/media/default.css"/>
+    <link rel="alternate" type="application/atom+xml" href="/feed.atom" title="Obraz"/>
+    <script type="text/javascript" src="/media/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/media/highlight.pack.js"></script>
+  </head>
+  <body>
+    <heading>
+      
+        <p><a href="/">Obraz</a> — static site generator in a single Python file mostly compatible with Jekyll</p>
+        <div class="break"></div>
+      
+    </heading>
+    
+<section class="hentry">
+  <div class="meta">
+    <div class="navigation">
+      
+        <a href="/2012/06/08/obraz-0.2.1.html">« Previous</a>
+      
+      
+        <a href="/2012/05/27/obraz-0.1.2.html">Next »</a>
+      
+    </div>
+    <div class="published">2012-06-02</div>
+  </div>
+  <h1>Obraz 0.2 Released</h1>
+  <p>This release introduces an experimental plugin system.</p>
+<p>What's new:</p>
+<ul>
+<li>Experimental plugin system</li>
+<li>Compatibility with Python 2.6-3.2</li>
+</ul>
+<p>Please note, that the plugin system is very experimental. It may be changed
+significantly in the future releases.</p>
+<p>Having said that, let's see how to write plugins for Obraz. A plugin is a Python
+file sitting in the <code>_plugins</code> directory inside your site. This file will be
+sourced by Obraz before loading the site content.</p>
+<p>A typical plugin should:</p>
+<ol>
+<li>Define some loading or processing functions</li>
+<li>Register these functions within Obraz</li>
+</ol>
+<p>Let's create a simple plugin that automatically sets the layout of the blog
+posts to the <code>posts_layout</code> parameter value of <code>_config.yml</code>.</p>
+<p>File <code>_plugins/posts_layout.py</code>:</p>
+<pre><code>def process_posts_layout(basedir, destdir, site):
+    """Set default posts layout."""
+    layout = site.get('posts_layout', 'post')
+    for post in site.get('posts', []):
+        post.setdefault('layout', layout)
+
+obraz.processors.insert(0, process_posts_layout)
+</code></pre>
+<p>That's all you need. <code>obraz</code> is a special variable that refers to the Obraz
+module. You can see your plugin doing things in the output of Obraz:</p>
+<pre><code>$ obraz
+Loaded 1 plugins
+Loading source files...
+Loaded 13 files
+Set default posts layout...
+Sort and interlink posts...
+Generate pages with YAML front matter...
+Copy static files...
+Site generated successfully
+</code></pre>
+<p>Please refer to the <a href="https://bitbucket.org/vlasovskikh/obraz/src/master/obraz.py">source code</a> of Obraz for more info. Remember that it's
+less than 500 lines!</p>
+  <div class="tags">
+    
+      Tags:
+      
+        <a href="/tags/release.html">release</a>.
+    
+  </div>
+  <section id="buttons">
+</section>
+</section>
+
+   <script type="text/javascript">
+     $(document).ready(function () {
+       hljs.initHighlightingOnLoad();
+     });
+   </script>
+   <div class="break"></div>
+    <footer>
+      <address>Copyright © 2012-2022 Andrey Vlasovskikh</address>
+      <div>Except as noted, the content is licensed under the terms of a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons License</a>.</div>
+      <div>Last updated: 2022-05-05. Created using <a href="https://obraz.pirx.ru/">Obraz</a>. See the <a href="https://github.com/vlasovskikh/obraz/tree/master/doc/_posts/2012-06-02-obraz-0.2.md">source code</a> of the page.</div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Compatibility with Jekyll</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/media/default.css"/>
+    <link rel="alternate" type="application/atom+xml" href="/feed.atom" title="Obraz"/>
+    <script type="text/javascript" src="/media/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/media/highlight.pack.js"></script>
+  </head>
+  <body>
+    <heading>
+      
+        <p><a href="/">Obraz</a> — static site generator in a single Python file mostly compatible with Jekyll</p>
+        <div class="break"></div>
+      
+    </heading>
+    <h1>Compatibility with Jekyll</h1>
+<p>Obraz is mostly compatible with Jekyll 1.4. Since most parts of the <a href="https://jekyllrb.com/docs/">Jekyll
+documentation</a> are valid for Obraz too, Obraz doesn't have its own
+documentation.</p>
+<p>However, there are several differences you should be aware of.</p>
+<h2>Different</h2>
+<ul>
+<li>
+<p>Template system</p>
+<p>Jekyll uses the Liquid templates system written in Ruby, but Obraz is
+written in Python and it cannot use Liquid. Obraz uses the Jinja2 templates
+system by default. Note, that you can change the template system via
+<a href="/plugins.html">plugins</a>.</p>
+<p>Jinja2 tag syntax is very similar to Liquid, but its set of filters is
+quite different. The process of translation a Liquid template to Jinja2 is
+usually straightforward. See the <a href="https://jinja.palletsprojects.com/">Jinja2 templates documentation</a> for
+details.</p>
+<p>Jekyll filters in Obraz: <code>markdownify</code>.</p>
+</li>
+<li>
+<p>Plugin system</p>
+<p>Obraz has its own <a href="/plugins.html">plugin system</a> incompatible with Jekyll.</p>
+</li>
+<li>
+<p>Permalink syntax</p>
+<p>Permalinks are specified using Python curly braces string formatting. For
+example:</p>
+<pre><code>/foo/bar/{year}/{month}/{day}/{title}.html
+</code></pre>
+<p>Variables <code>i_month</code> and <code>i_day</code>, as well as built-in permalink styles, are
+not available.</p>
+</li>
+<li>
+<p>Help command</p>
+<p>Use <code>--help</code> flag instead of <code>help</code> command.</p>
+</li>
+<li>
+<p>Verbosity level</p>
+<p>Obraz is verbose by default, there is no <code>--verbose</code> flag. Use <code>--quiet</code>
+flag to decrease verbosity.</p>
+</li>
+<li>
+<p>Raw content of pages</p>
+<p>Use <code>raw_content</code> template data variable on pages in order to disable
+content rendering via the template system. In Jekyll you have to wrap your
+content that could clash with template formatting into
+<code>{% raw %}</code> template tags.</p>
+</li>
+</ul>
+<h2>Not Implemented Yet</h2>
+<ul>
+<li>
+<p>Some commands</p>
+<p>The following commands are not supported: <code>docs</code>, <code>doctor</code>.</p>
+</li>
+<li>
+<p>Textile markup</p>
+<p>Textile markup language is not supported. Note, that you can register
+custom markup filters via <a href="/plugins.html">plugins</a>.</p>
+</li>
+<li>
+<p>Some template data variables</p>
+<p>The following template data variables are not supported: <code>paginator</code>,
+<code>site.related_posts</code>, <code>site.categories</code>,  <code>page.excerpt</code>,
+<code>page.categories</code>, <code>site.data</code>.</p>
+</li>
+<li>
+<p>Some command-line flags</p>
+<p>The following command-line flags are not supported: <code>--future</code>,
+<code>--lsi</code>, <code>--limit_posts</code>, <code>--detach</code>, <code>--plugins</code>, <code>--layouts</code>, <code>--config</code>.</p>
+</li>
+<li>
+<p>Some config options</p>
+<p>The following <code>_config.yml</code> options are not supported: <code>timezone</code>, <code>future</code>,
+<code>lsi</code>, <code>limit_posts</code>, <code>encoding</code>.</p>
+</li>
+</ul>
+<h2>Not in Obraz</h2>
+<ul>
+<li>
+<p>Syntax highlighting</p>
+<p>No syntax highlighting is built into Obraz. You can use a cool
+<a href="https://highlightjs.org">highlight.js</a> library to highlight your code using only <em>two</em> lines of
+JavaScript code.</p>
+</li>
+<li>
+<p>Blog migration tools and <code>import</code> command</p>
+<p>Obraz doesn't contain any blog migration tools. Use the tools from Jekyll in
+order to migrate from popular blog hosting sites to Obraz.</p>
+</li>
+</ul>
+<p>Found an incompatible behaviour or want to request a new feature? Please post
+your reports to the <a href="https://github.com/vlasovskikh/obraz/issues">bug tracker</a>.</p>
+   <script type="text/javascript">
+     $(document).ready(function () {
+       hljs.initHighlightingOnLoad();
+     });
+   </script>
+   <div class="break"></div>
+    <footer>
+      <address>Copyright © 2012-2022 Andrey Vlasovskikh</address>
+      <div>Except as noted, the content is licensed under the terms of a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons License</a>.</div>
+      <div>Last updated: 2022-05-05. Created using <a href="https://obraz.pirx.ru/">Obraz</a>. See the <a href="https://github.com/vlasovskikh/obraz/tree/master/doc/jekyll.md">source code</a> of the page.</div>
+    </footer>
+  </body>
+</html>

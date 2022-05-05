@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Obraz Plugins</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/media/default.css"/>
+    <link rel="alternate" type="application/atom+xml" href="/feed.atom" title="Obraz"/>
+    <script type="text/javascript" src="/media/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/media/highlight.pack.js"></script>
+  </head>
+  <body>
+    <heading>
+      
+        <p><a href="/">Obraz</a> — static site generator in a single Python file mostly compatible with Jekyll</p>
+        <div class="break"></div>
+      
+    </heading>
+    <h1>Obraz Plugins</h1>
+<p>Plugins allow extending the site generation process via user-defined processing
+functions.</p>
+<p>Consider a photo hosting example. By writing a custom plugin you can:</p>
+<ul>
+<li>Use album data from your media library stored in a SQL database</li>
+<li>Add EXIF metadata from images to your photo pages</li>
+<li>Generate re-sized images and thumbnails</li>
+</ul>
+<p>Plugins are Python files that should be put into the <code>_plugins</code> directory of
+the site.</p>
+<p>Obraz plugins are incompatible with Jekyll plugins, see
+<a href="/jekyll.html">compatiblity with Jekyll</a>.</p>
+<h2>Available Plugins</h2>
+<ul>
+<li><a href="https://github.com/vlasovskikh/obraz/blob/master/doc/_plugins/tags.py">Tags</a>
+  by <a href="https://pirx.ru/">Andrey Vlasovskikh</a>: Generate per-tag pages</li>
+</ul>
+<p><em>Note:</em> You can add your plugins to this list by sending a pull request to the
+<a href="https://github.com/vlasovskikh/obraz">Obraz repository</a> on GitHub.</p>
+<h2>Site Model</h2>
+<p>Internally Obraz represents the site being generated as a Python dictionary.
+This is the same dictionary as <code>site</code> in Jekyll <a href="https://jekyllrb.com/docs/variables/">template data</a>.</p>
+<p>The generation process is split into three steps:</p>
+<ol>
+<li>Loader functions populate the site dictionary by reading files from the
+   source directory</li>
+<li>Processor functions modify the site dictionary (e.g. sort data)</li>
+<li>Generator functions create files in the destination directory based on the
+   site dictionary</li>
+</ol>
+<p>Functions for all these steps are registered via extension point decorators.
+This applies to third-party plugin functions as well as to the processing
+functions in Obraz itself.</p>
+<p>There are also a couple of extension points that allow to change define content
+and template filters, or change the template system.</p>
+<h2>Extension Points</h2>
+<ul>
+<li>
+<p><strong><code>@obraz.loader</code></strong></p>
+<p>Register a site source content loader.</p>
+<p>Source content loaders transform a file path from the site source directory
+into a dictionary that will be merged by Obraz into the <code>site</code> dictionary.
+If the loader wants to skip a file and pass it to other loaders, then it
+should return <code>None</code>. Loaders are not allowed to modify their <code>config</code>
+parameter.</p>
+<p>Loaders are useful when you have source files in some format that you want
+to parse and make available as a part of the site dictionary instead of
+treating them like pages with YAML front matter or regular static files.</p>
+<p>A site content loader is a fuction of type
+<code>(path: str, config: Config) -&gt; SiteContents | None</code>.</p>
+<p>Example:</p>
+<pre><code>import os
+import xml.etree.ElementTree as etree
+import obraz
+
+@obraz.loader
+def load_checkins(path, config):
+    """Loading check-ins from a KML file."""
+    if not obraz.is_file_visible(path, config):
+        return None
+    if not path.endswith('.kml'):
+        return None
+    root = etree.parse(os.path.join(config['source'], path))
+    return {
+        'checkins': root.findall('Folder/Placemark'),
+    }
+</code></pre>
+</li>
+<li>
+<p><strong><code>@obraz.processor</code></strong></p>
+<p>Register a site content processor.</p>
+<p>Content processors are useful when you need to extend or rearrange already
+existing site data. Site data includes options from the configuration file.</p>
+<p>A site content processor is a fuction of type <code>(site: Site) -&gt; None</code>.</p>
+<p>Example:</p>
+<pre><code>import os
+import obraz
+from PIL import Image
+from PIL.ExifTags import TAGS
+
+def read_exif(path):
+    img = Image.open(path)
+    exif = img._getexif()
+    if exif:
+        return {TAGS[k]: v for k, v in exif.items() if k in TAGS}
+    else:
+        return {}
+
+@obraz.processor
+def process_exif(site):
+    """Processing EXIF metadata."""
+    for file in site.get('files', []):
+        path = os.path.join(site['source'], file['source'])
+        if not path.endswith('.jpg'):
+            continue
+        exif = read_exif(path)
+        if exif:
+            file['exif'] = exif
+</code></pre>
+</li>
+<li>
+<p><strong><code>@obraz.generator</code></strong></p>
+<p>Register a generator of destination files for the site.</p>
+<p>Generators are useful when you need to create additional generated files
+you need at your site, e.g. tag pages or image thumbnails. Site data
+includes options from the configuration file.</p>
+<p>A site content generator is a fuction of type <code>(site: Site) -&gt; None</code>.</p>
+<pre><code>import os
+import obraz
+from PIL import Image
+
+size = 300
+
+@obraz.generator
+def generate_thumbnails(site):
+    """Generating thumbnails."""
+    for file in site.get('files', []):
+        path = file['source']
+        if not path.endswith('.jpg'):
+            return None
+        img = Image.open(os.path.join(site['source'], path))
+        img.thumbnail((size, size), Image.ANTIALIAS)
+        name, ext = os.path.splitext(path)
+        new_path = '{0}-{1}{2}'.format(name, size, ext)
+        img.save(os.path.join(site['destination'], new_path), 'JPEG')
+</code></pre>
+</li>
+<li>
+<p><strong><code>@obraz.file_filter(extensions)</code></strong></p>
+<p>Register a page content filter for file extensions.</p>
+<p>File filters are useful for supporting alternative markup languages, such
+as Textile or ReStructured Text.</p>
+<p>A file filter is a function of type <code>(content: str, config: Config) -&gt; str</code>.</p>
+<p>Example:</p>
+<pre><code>import obraz
+from markdown import markdown
+
+@obraz.file_filter(['.md', '.mkdn'])
+def markdown_filter(content, config):
+    """Render Mardown files with tables and footnotes extensions."""
+    return markdown(content, ['tables', 'footnotes'])
+</code></pre>
+</li>
+<li>
+<p><strong><code>@obraz.template_filter(name)</code></strong></p>
+<p>Register a template filter. Jinja2 <a href="https://jinja.palletsprojects.com/templates/#filters">template filters</a> allow filtering
+variables in templates.</p>
+<p>A template filter is a function of type
+<code>(content: str, config: Config) -&gt; str</code>.</p>
+<p>Example:</p>
+<pre><code>import obraz
+from markdown import markdown
+
+@obraz.template_filter('markdownify')
+def markdownify(content, config):
+    """Markdown Jinja2 template filter."""
+    return markdown(content)
+</code></pre>
+</li>
+<li>
+<p><strong><code>@obraz.template_renderer</code></strong></p>
+<p>Set a custom template renderer. You can change the template system used by
+Obraz.</p>
+<p>A template renderer is a function of type
+<code>(string: str, context: dict[str, Any], config: Config) -&gt; str</code>.</p>
+<p>Example:</p>
+<pre><code>import obraz
+from mako.template import Template
+from mako.lookup import TemplateLookup
+
+@obraz.template_renderer
+def mako_render_string(string, context, config):
+    """Render string using Mako template library."""
+    includes = os.path.join(config['source'], '_includes')
+    lookup = TemplateLookup(directories=[includes])
+    return Template(string, lookup=lookup).render(**context)
+</code></pre>
+</li>
+</ul>
+<h2>Development Notes</h2>
+<p>The easiest way of getting started with plugin development is to read source
+code of other plugins.</p>
+<p>Please document your plugin carefully in the plugin file docstring. Don't
+forget to mention Obraz version compatiblity, required libraries, configuration
+parameters.</p>
+<p>If a plugin needs configuration parameters, the best place for them is a
+separate section in <code>_config.yml</code>. The contents of this YAML file will
+be available for the plugin as a part of <code>site</code>.</p>
+<p>You may use all functions defined in <code>obraz</code>, but they are not a part of the
+plugins API and may be changed or removed in future versions.</p>
+   <script type="text/javascript">
+     $(document).ready(function () {
+       hljs.initHighlightingOnLoad();
+     });
+   </script>
+   <div class="break"></div>
+    <footer>
+      <address>Copyright © 2012-2022 Andrey Vlasovskikh</address>
+      <div>Except as noted, the content is licensed under the terms of a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons License</a>.</div>
+      <div>Last updated: 2022-05-05. Created using <a href="https://obraz.pirx.ru/">Obraz</a>. See the <a href="https://github.com/vlasovskikh/obraz/tree/master/doc/plugins.md">source code</a> of the page.</div>
+    </footer>
+  </body>
+</html>
