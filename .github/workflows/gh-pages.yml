@@ -20,7 +20,7 @@ jobs:
       - name: Build site with Obraz
         working-directory: ./doc
         run: |
-          obraz build
+          obraz build --trace
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
