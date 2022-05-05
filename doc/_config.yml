@@ -4,4 +4,3 @@ exclude:
 tags_plugin:
   descriptions:
     release: Release notes
-lessc: /opt/homebrew/bin/lessc

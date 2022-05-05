@@ -31,7 +31,7 @@ Configuration in `_config.yml`:
 
 Requirements:
 
-* Obraz == 0.9.x
+* Obraz >= 0.9.3
 * lessc (npm install -g less)
 """
 
@@ -39,12 +39,15 @@ Requirements:
 from __future__ import unicode_literals
 import os
 import subprocess
-from typing import cast
+from typing import TypedDict, cast
 import obraz
 
 
-class LessSite(obraz.Site, total=False):
+class TagsConfig(TypedDict, total=False):
     lessc: str
+
+
+class LessSite(obraz.Site, TagsConfig, total=False):
     less_files: list[obraz.File]
 
 
@@ -66,9 +69,7 @@ def process_less(site: obraz.Site) -> None:
 def generate_less(site: obraz.Site) -> None:
     """Generate Less files."""
     site = cast(LessSite, site)
-    lessc = site.get("lessc")
-    if not lessc:
-        raise Exception("No 'lessc' path in site config")
+    lessc = site.get("lessc", "lessc")
     for file_ in site.get("less_files", []):
         src = os.path.join(site["source"], file_["path"])
         dst = os.path.join(site["destination"], obraz.url2path(file_["url"]))
