@@ -165,11 +165,7 @@ DEFAULT_CONFIG: ConfigBase = {
     "destination": "./_site",
     "include": [".htaccess"],
     "exclude": [],
-    "exclude_patterns": [
-        r"^[\.#].*",
-        r".*~$",
-        r".*\.s[uvw][a-z]$",  # *.swp files, etc.
-    ],
+    "exclude_patterns": [r"^[\.#].*", r".*~$", r".*\.sw[op]$"],
     "full_build_patterns": [
         r"_layouts",
         r"_includes",
