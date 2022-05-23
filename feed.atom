@@ -2,7 +2,7 @@
 <feed xmlns="https://www.w3.org/2005/Atom">
  <title>Obraz</title>
  <id>https://obraz.pirx.ru/</id>
- <updated>2022-05-23T14:02:14.225080Z</updated>
+ <updated>2022-05-23T14:07:56.570140Z</updated>
  <author>
    <name>Andrey Vlasovskikh</name>
  </author>
@@ -24,9 +24,9 @@
    </entry>
  
    <entry>
-     <title>Obraz 0.9.4 Released</title>
-     <id>https://obraz.pirx.ru/2022/05/05/obraz-0.9.4</id>
-     <link rel="alternate" href="https://obraz.pirx.ru/2022/05/05/obraz-0.9.4.html"/>
+     <title>Obraz 0.9.5 Released</title>
+     <id>https://obraz.pirx.ru/2022/05/05/obraz-0.9.5</id>
+     <link rel="alternate" href="https://obraz.pirx.ru/2022/05/05/obraz-0.9.5.html"/>
      <updated>2022-05-05T00:00:00Z</updated>
      <content type="xhtml">
        <div xmlns="https://www.w3.org/1999/xhtml"><p>This is a bugfix release.</p>
