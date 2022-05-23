@@ -743,7 +743,7 @@ def new_site(path: str) -> None:
 
 
 def obraz(argv: list[str]) -> None:
-    opts = docopt(__doc__ or "", argv=argv, version="0.9.4")
+    opts = docopt(__doc__ or "", argv=argv, version="0.9.5")
     global _quiet
     _quiet = opts["--quiet"]
 
