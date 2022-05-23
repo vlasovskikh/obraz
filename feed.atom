@@ -2,7 +2,7 @@
 <feed xmlns="https://www.w3.org/2005/Atom">
  <title>Obraz</title>
  <id>https://obraz.pirx.ru/</id>
- <updated>2022-05-05T12:22:25.664971Z</updated>
+ <updated>2022-05-23T14:02:14.225080Z</updated>
  <author>
    <name>Andrey Vlasovskikh</name>
  </author>
@@ -19,6 +19,21 @@
 <p>What's new:</p>
 <ul>
 <li>Stricter type hints based on <code>TypedDict</code></li>
+</ul></div>
+     </content>
+   </entry>
+ 
+   <entry>
+     <title>Obraz 0.9.4 Released</title>
+     <id>https://obraz.pirx.ru/2022/05/05/obraz-0.9.4</id>
+     <link rel="alternate" href="https://obraz.pirx.ru/2022/05/05/obraz-0.9.4.html"/>
+     <updated>2022-05-05T00:00:00Z</updated>
+     <content type="xhtml">
+       <div xmlns="https://www.w3.org/1999/xhtml"><p>This is a bugfix release.</p>
+<p>What's new:</p>
+<ul>
+<li>Fixed too broad <code>exclude_patterns</code> in the default config that affected copying
+  <code>*.svg</code> files</li>
 </ul></div>
      </content>
    </entry>
@@ -76,20 +91,6 @@ point for adding custom Jinja2 filters. The plugin system added in
 <li><code>markdownify</code> template filter as in Jekyll</li>
 <li><code>obraz.filters</code> extension point renamed to <code>obraz.file_filters</code></li>
 </ul></div>
-     </content>
-   </entry>
- 
-   <entry>
-     <title>Obraz Sites</title>
-     <id>https://obraz.pirx.ru/2012/11/15/obraz-sites</id>
-     <link rel="alternate" href="https://obraz.pirx.ru/2012/11/15/obraz-sites.html"/>
-     <updated>2012-11-15T00:00:00Z</updated>
-     <content type="xhtml">
-       <div xmlns="https://www.w3.org/1999/xhtml"><p>Since the last 0.2.1 release several people have started to use Obraz for their
-sites. The only site with open sources that I'm aware of is labs.dendiz.com.</p>
-<p>I keep a list of sites using Obraz. If you run your site on Obraz and you want
-to put a link to it on the Obraz homepage, feel free to send me an email or open
-a pull request.</p></div>
      </content>
    </entry>
  
