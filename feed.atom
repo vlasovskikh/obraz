@@ -2,12 +2,27 @@
 <feed xmlns="https://www.w3.org/2005/Atom">
  <title>Obraz</title>
  <id>https://obraz.pirx.ru/</id>
- <updated>2022-05-23T14:07:56.570140Z</updated>
+ <updated>2022-05-23T14:09:48.917469Z</updated>
  <author>
    <name>Andrey Vlasovskikh</name>
  </author>
  <link rel="self" href="https://obraz.pirx.ru/feed.atom"/>
  <link rel="alternate" href="https://obraz.pirx.ru/"/>
+ 
+   <entry>
+     <title>Obraz 0.9.5 Released</title>
+     <id>https://obraz.pirx.ru/2022/05/23/obraz-0.9.5</id>
+     <link rel="alternate" href="https://obraz.pirx.ru/2022/05/23/obraz-0.9.5.html"/>
+     <updated>2022-05-23T00:00:00Z</updated>
+     <content type="xhtml">
+       <div xmlns="https://www.w3.org/1999/xhtml"><p>This is a bugfix release.</p>
+<p>What's new:</p>
+<ul>
+<li>Fixed too broad <code>exclude_patterns</code> in the default config that affected copying
+  <code>*.svg</code> files</li>
+</ul></div>
+     </content>
+   </entry>
  
    <entry>
      <title>Obraz 0.9.3 Released</title>
@@ -19,21 +34,6 @@
 <p>What's new:</p>
 <ul>
 <li>Stricter type hints based on <code>TypedDict</code></li>
-</ul></div>
-     </content>
-   </entry>
- 
-   <entry>
-     <title>Obraz 0.9.5 Released</title>
-     <id>https://obraz.pirx.ru/2022/05/05/obraz-0.9.5</id>
-     <link rel="alternate" href="https://obraz.pirx.ru/2022/05/05/obraz-0.9.5.html"/>
-     <updated>2022-05-05T00:00:00Z</updated>
-     <content type="xhtml">
-       <div xmlns="https://www.w3.org/1999/xhtml"><p>This is a bugfix release.</p>
-<p>What's new:</p>
-<ul>
-<li>Fixed too broad <code>exclude_patterns</code> in the default config that affected copying
-  <code>*.svg</code> files</li>
 </ul></div>
      </content>
    </entry>
