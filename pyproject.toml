@@ -25,7 +25,7 @@ Markdown = "^3.3.6"
 docopt = "^0.6.2"
 
 [tool.poetry.dev-dependencies]
-pre-commit = "^2.18.1"
+pre-commit = "^3.3.2"
 
 [tool.poetry.scripts]
 obraz = "obraz:main"
