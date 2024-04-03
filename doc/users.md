@@ -12,6 +12,7 @@ This is a list of several sites that are generated using Obraz:
   ([sources](https://github.com/vlasovskikh/obraz/tree/master/doc))
 * [Pirx.ru](https://pirx.ru)
 * [Incubos.org](https://incubos.org/)
+* [Hitchens-Obraz](https://hitchens-obraz.netlify.app/) is an Obraz port of [Hitchens](https://github.com/patdryburgh/hitchens), a Jekyll theme ([sources](https://github.com/sevelev-ens/hitchens-obraz))
 
 If you run your site on Obraz and you want to put a link to it here, feel free
 to contact me or send a pull request to the [Obraz repository][1] on GitHub.
